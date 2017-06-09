@@ -3,10 +3,20 @@
 	"ignore": "appengine test github.com/hashicorp/nomad/",
 	"package": [
 		{
-			"checksumSHA1": "nomT+8bvze/Qmc0tK0r0mwgHV6M=",
+			"checksumSHA1": "ApkQTsImYjv+teWs/L9pB/Mmnho=",
 			"path": "github.com/Ensighten/udnssdk",
-			"revision": "9f1218928b30c6dec7f2c184c47286abc325deb9",
-			"revisionTime": "2016-06-13T20:05:45Z"
+			"revision": "50fc57a35b373285b4d46db88c19dc86d605724b",
+			"revisionTime": "2017-03-03T23:35:56Z"
+		},
+		{
+			"checksumSHA1": "XVAeelbnNav0PIcwk32LiKg1dpQ=",
+			"path": "github.com/Ensighten/udnssdk/password",
+			"revision": "50fc57a35b373285b4d46db88c19dc86d605724b",
+			"revisionTime": "2017-03-03T23:35:56Z"
+		},
+		{
+			"path": "github.com/Ensighten/udnssdk/passwordcredentials",
+			"revision": ""
 		},
 		{
 			"checksumSHA1": "FIL83loX9V9APvGQIjJpbxq53F0=",
