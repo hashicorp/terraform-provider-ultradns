@@ -15,10 +15,6 @@
 			"revisionTime": "2017-03-03T23:35:56Z"
 		},
 		{
-			"path": "github.com/Ensighten/udnssdk/passwordcredentials",
-			"revision": ""
-		},
-		{
 			"checksumSHA1": "FIL83loX9V9APvGQIjJpbxq53F0=",
 			"path": "github.com/apparentlymart/go-cidr/cidr",
 			"revision": "7e4b007599d4e2076d9a81be723b3912852dda2c",
