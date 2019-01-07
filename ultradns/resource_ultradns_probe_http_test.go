@@ -17,7 +17,7 @@ func TestAccUltradnsProbeHTTP(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccTcpoolCheckDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: fmt.Sprintf(testCfgProbeHTTPMinimal, domain, domain),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckUltradnsRecordExists("ultradns_tcpool.test-probe-http-minimal", &record),
@@ -44,7 +44,7 @@ func TestAccUltradnsProbeHTTP(t *testing.T) {
 					resource.TestCheckResourceAttr("ultradns_probe_http.it", "http_probe.0.transaction.0.limit.1349952704.fail", "60"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: fmt.Sprintf(testCfgProbeHTTPMaximal, domain, domain),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckUltradnsRecordExists("ultradns_tcpool.test-probe-http-maximal", &record),

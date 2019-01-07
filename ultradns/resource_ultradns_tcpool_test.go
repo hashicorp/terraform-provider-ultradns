@@ -17,7 +17,7 @@ func TestAccUltradnsTcpool(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccTcpoolCheckDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: fmt.Sprintf(testCfgTcpoolMinimal, domain),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckUltradnsRecordExists("ultradns_tcpool.it", &record),
@@ -44,7 +44,7 @@ func TestAccUltradnsTcpool(t *testing.T) {
 					resource.TestCheckResourceAttr("ultradns_tcpool.it", "hostname", "test-tcpool-minimal.ultradns.phinze.com."),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: fmt.Sprintf(testCfgTcpoolMaximal, domain),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckUltradnsRecordExists("ultradns_tcpool.it", &record),

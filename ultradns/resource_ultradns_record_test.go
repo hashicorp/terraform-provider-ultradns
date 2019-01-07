@@ -19,7 +19,7 @@ func TestAccUltradnsRecord(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccRecordCheckDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: fmt.Sprintf(testCfgRecordMinimal, domain),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckUltradnsRecordExists("ultradns_record.it", &record),
@@ -28,7 +28,7 @@ func TestAccUltradnsRecord(t *testing.T) {
 					resource.TestCheckResourceAttr("ultradns_record.it", "rdata.3994963683", "10.5.0.1"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: fmt.Sprintf(testCfgRecordMinimal, domain),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckUltradnsRecordExists("ultradns_record.it", &record),
@@ -37,7 +37,7 @@ func TestAccUltradnsRecord(t *testing.T) {
 					resource.TestCheckResourceAttr("ultradns_record.it", "rdata.3994963683", "10.5.0.1"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: fmt.Sprintf(testCfgRecordUpdated, domain),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckUltradnsRecordExists("ultradns_record.it", &record),
@@ -60,7 +60,7 @@ func TestAccUltradnsRecordTXT(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccRecordCheckDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: fmt.Sprintf(testCfgRecordTXTMinimal, domain),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckUltradnsRecordExists("ultradns_record.it", &record),

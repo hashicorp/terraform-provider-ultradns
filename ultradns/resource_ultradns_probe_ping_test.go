@@ -17,7 +17,7 @@ func TestAccUltradnsProbePing(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccTcpoolCheckDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: fmt.Sprintf(testCfgProbePingRecord, domain, domain),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckUltradnsRecordExists("ultradns_tcpool.test-probe-ping-record", &record),
@@ -46,7 +46,7 @@ func TestAccUltradnsProbePing(t *testing.T) {
 					resource.TestCheckResourceAttr("ultradns_probe_ping.it", "ping_probe.0.limit.3257917790.fail", "4"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: fmt.Sprintf(testCfgProbePingPool, domain, domain),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckUltradnsRecordExists("ultradns_tcpool.test-probe-ping-pool", &record),
