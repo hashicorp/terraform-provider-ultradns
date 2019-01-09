@@ -19,24 +19,24 @@ func resourceUltradnsRdpool() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			// Required
-			"zone": &schema.Schema{
+			"zone": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"rdata": &schema.Schema{
+			"rdata": {
 				Type:     schema.TypeSet,
 				Set:      schema.HashString,
 				Required: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			// Optional
-			"order": &schema.Schema{
+			"order": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "ROUND_ROBIN",
@@ -46,18 +46,18 @@ func resourceUltradnsRdpool() *schema.Resource {
 					"RANDOM",
 				}, false),
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringLenBetween(0, 255),
 			},
-			"ttl": &schema.Schema{
+			"ttl": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Default:  3600,
 			},
 			// Computed
-			"hostname": &schema.Schema{
+			"hostname": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

@@ -17,7 +17,7 @@ func TestAccUltradnsRdpool(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccRdpoolCheckDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: fmt.Sprintf(testCfgRdpoolMinimal, domain),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckUltradnsRecordExists("ultradns_rdpool.it", &record),
@@ -36,7 +36,7 @@ func TestAccUltradnsRdpool(t *testing.T) {
 					resource.TestCheckResourceAttr("ultradns_rdpool.it", "hostname", "test-rdpool-minimal.ultradns.phinze.com."),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: fmt.Sprintf(testCfgRdpoolMaximal, domain),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckUltradnsRecordExists("ultradns_rdpool.it", &record),
