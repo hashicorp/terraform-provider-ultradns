@@ -53,11 +53,6 @@ func resourceUltradnsProbePing() *schema.Resource {
 				Optional: true,
 				Elem:     schemaPingProbe(),
 			},
-			// Computed
-			"id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 		},
 	}
 }

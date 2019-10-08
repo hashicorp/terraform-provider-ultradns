@@ -54,11 +54,6 @@ func resourceUltradnsProbeHTTP() *schema.Resource {
 				Optional: true,
 				Elem:     schemaHTTPProbe(),
 			},
-			// Computed
-			"id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 		},
 	}
 }
