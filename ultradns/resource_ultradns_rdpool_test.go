@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/Ensighten/udnssdk"
-	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccUltradnsRdpool(t *testing.T) {
