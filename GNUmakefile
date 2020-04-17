@@ -6,7 +6,10 @@ PKG_NAME=ultradns
 default: build
 
 build: fmtcheck
-	go install
+	go build -v
+
+clean:
+	go clean
 
 test: fmtcheck
 	go test -i $(TEST) || exit 1
