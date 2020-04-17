@@ -3,8 +3,11 @@ package terraform
 import (
 	"fmt"
 
-	multierror "github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform/addrs"
+	"github.com/hashicorp/terraform/tfdiags"
+
 	"github.com/hashicorp/terraform/plugin/discovery"
+	"github.com/hashicorp/terraform/providers"
 )
 
 // ResourceProvider is an interface that must be implemented by any
@@ -21,13 +24,21 @@ type ResourceProvider interface {
 	* Functions related to the provider
 	*********************************************************************/
 
-	// Input is called to ask the provider to ask the user for input
-	// for completing the configuration if necesarry.
+	// ProviderSchema returns the config schema for the main provider
+	// configuration, as would appear in a "provider" block in the
+	// configuration files.
 	//
-	// This may or may not be called, so resource provider writers shouldn't
-	// rely on this being available to set some default values for validate
-	// later. Example of a situation where this wouldn't be called is if
-	// the user is not using a TTY.
+	// Currently not all providers support schema. Callers must therefore
+	// first call Resources and DataSources and ensure that at least one
+	// resource or data source has the SchemaAvailable flag set.
+	GetSchema(*ProviderSchemaRequest) (*ProviderSchema, error)
+
+	// Input was used prior to v0.12 to ask the provider to prompt the user
+	// for input to complete the configuration.
+	//
+	// From v0.12 onwards this method is never called because Terraform Core
+	// is able to handle the necessary input logic itself based on the
+	// schema returned from GetSchema.
 	Input(UIInput, *ResourceConfig) (*ResourceConfig, error)
 
 	// Validate is called once at the beginning with the raw configuration
@@ -161,18 +172,6 @@ type ResourceProvider interface {
 	ReadDataApply(*InstanceInfo, *InstanceDiff) (*InstanceState, error)
 }
 
-// ResourceProviderError may be returned when creating a Context if the
-// required providers cannot be satisfied. This error can then be used to
-// format a more useful message for the user.
-type ResourceProviderError struct {
-	Errors []error
-}
-
-func (e *ResourceProviderError) Error() string {
-	// use multierror to format the default output
-	return multierror.Append(nil, e.Errors...).Error()
-}
-
 // ResourceProviderCloser is an interface that providers that can close
 // connections that aren't needed anymore must implement.
 type ResourceProviderCloser interface {
@@ -183,11 +182,25 @@ type ResourceProviderCloser interface {
 type ResourceType struct {
 	Name       string // Name of the resource, example "instance" (no provider prefix)
 	Importable bool   // Whether this resource supports importing
+
+	// SchemaAvailable is set if the provider supports the ProviderSchema,
+	// ResourceTypeSchema and DataSourceSchema methods. Although it is
+	// included on each resource type, it's actually a provider-wide setting
+	// that's smuggled here only because that avoids a breaking change to
+	// the plugin protocol.
+	SchemaAvailable bool
 }
 
 // DataSource is a data source that a resource provider implements.
 type DataSource struct {
 	Name string
+
+	// SchemaAvailable is set if the provider supports the ProviderSchema,
+	// ResourceTypeSchema and DataSourceSchema methods. Although it is
+	// included on each resource type, it's actually a provider-wide setting
+	// that's smuggled here only because that avoids a breaking change to
+	// the plugin protocol.
+	SchemaAvailable bool
 }
 
 // ResourceProviderResolver is an interface implemented by objects that are
@@ -197,18 +210,18 @@ type ResourceProviderResolver interface {
 	// Given a constraint map, return a ResourceProviderFactory for each
 	// requested provider. If some or all of the constraints cannot be
 	// satisfied, return a non-nil slice of errors describing the problems.
-	ResolveProviders(reqd discovery.PluginRequirements) (map[string]ResourceProviderFactory, []error)
+	ResolveProviders(reqd discovery.PluginRequirements) (map[addrs.Provider]ResourceProviderFactory, []error)
 }
 
 // ResourceProviderResolverFunc wraps a callback function and turns it into
 // a ResourceProviderResolver implementation, for convenience in situations
 // where a function and its associated closure are sufficient as a resolver
 // implementation.
-type ResourceProviderResolverFunc func(reqd discovery.PluginRequirements) (map[string]ResourceProviderFactory, []error)
+type ResourceProviderResolverFunc func(reqd discovery.PluginRequirements) (map[addrs.Provider]ResourceProviderFactory, []error)
 
 // ResolveProviders implements ResourceProviderResolver by calling the
 // wrapped function.
-func (f ResourceProviderResolverFunc) ResolveProviders(reqd discovery.PluginRequirements) (map[string]ResourceProviderFactory, []error) {
+func (f ResourceProviderResolverFunc) ResolveProviders(reqd discovery.PluginRequirements) (map[addrs.Provider]ResourceProviderFactory, []error) {
 	return f(reqd)
 }
 
@@ -219,13 +232,15 @@ func (f ResourceProviderResolverFunc) ResolveProviders(reqd discovery.PluginRequ
 //
 // This function is primarily used in tests, to provide mock providers or
 // in-process providers under test.
-func ResourceProviderResolverFixed(factories map[string]ResourceProviderFactory) ResourceProviderResolver {
-	return ResourceProviderResolverFunc(func(reqd discovery.PluginRequirements) (map[string]ResourceProviderFactory, []error) {
-		ret := make(map[string]ResourceProviderFactory, len(reqd))
+func ResourceProviderResolverFixed(factories map[addrs.Provider]ResourceProviderFactory) ResourceProviderResolver {
+	return ResourceProviderResolverFunc(func(reqd discovery.PluginRequirements) (map[addrs.Provider]ResourceProviderFactory, []error) {
+		ret := make(map[addrs.Provider]ResourceProviderFactory, len(reqd))
 		var errs []error
 		for name := range reqd {
-			if factory, exists := factories[name]; exists {
-				ret[name] = factory
+			// Provider Source Readiness!
+			fqn := addrs.NewLegacyProvider(name)
+			if factory, exists := factories[fqn]; exists {
+				ret[fqn] = factory
 			} else {
 				errs = append(errs, fmt.Errorf("provider %q is not available", name))
 			}
@@ -273,13 +288,35 @@ func ProviderHasDataSource(p ResourceProvider, n string) bool {
 // This should be called only with configurations that have passed calls
 // to config.Validate(), which ensures that all of the given version
 // constraints are valid. It will panic if any invalid constraints are present.
-func resourceProviderFactories(resolver ResourceProviderResolver, reqd discovery.PluginRequirements) (map[string]ResourceProviderFactory, error) {
+func resourceProviderFactories(resolver providers.Resolver, reqd discovery.PluginRequirements) (map[addrs.Provider]providers.Factory, tfdiags.Diagnostics) {
+	var diags tfdiags.Diagnostics
 	ret, errs := resolver.ResolveProviders(reqd)
 	if errs != nil {
-		return nil, &ResourceProviderError{
-			Errors: errs,
+		diags = diags.Append(
+			tfdiags.Sourceless(tfdiags.Error,
+				"Could not satisfy plugin requirements",
+				errPluginInit,
+			),
+		)
+
+		for _, err := range errs {
+			diags = diags.Append(err)
 		}
+
+		return nil, diags
 	}
 
 	return ret, nil
 }
+
+const errPluginInit = `
+Plugin reinitialization required. Please run "terraform init".
+
+Plugins are external binaries that Terraform uses to access and manipulate
+resources. The configuration provided requires plugins which can't be located,
+don't satisfy the version constraints, or are otherwise incompatible.
+
+Terraform automatically discovers provider requirements from your
+configuration, including providers used in child modules. To see the
+requirements and constraints from each module, run "terraform providers".
+`
