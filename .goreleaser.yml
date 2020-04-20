@@ -1,0 +1,47 @@
+before:
+  hooks:
+    - go mod tidy
+    - go mod download
+
+builds:
+- env:
+    - CGO_ENABLED=0
+    - GO111MODULE=on
+  goos:
+    - windows
+    - linux
+    - darwin
+  ldflags:
+    - -s -w
+
+archives:
+- name_template: "{{ .ProjectName }}-{{ .Version }}-{{ .Os }}-{{ .Arch }}"
+  format_overrides:
+    - goos: windows
+      format: zip
+  replacements:
+    darwin: Darwin
+    linux: Linux
+    windows: Windows
+    386: i386
+    amd64: x86_64
+
+checksum:
+  name_template: 'checksums.txt'
+
+snapshot:
+  name_template: "{{ .Tag }}-next"
+
+changelog:
+  skip: true
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^Merge'
+
+release:
+  draft: false
+  prerelease: auto
+  disable: false
