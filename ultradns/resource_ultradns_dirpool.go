@@ -9,8 +9,8 @@ import (
 
 	"github.com/Ensighten/udnssdk"
 	"github.com/fatih/structs"
-	"github.com/hashicorp/terraform/helper/hashcode"
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -584,7 +584,7 @@ func hashIPInfoIPs(v interface{}) int {
 	buf.WriteString(fmt.Sprintf("%s-", m["start"].(string)))
 	buf.WriteString(fmt.Sprintf("%s-", m["end"].(string)))
 	buf.WriteString(fmt.Sprintf("%s-", m["cidr"].(string)))
-	buf.WriteString(fmt.Sprintf("%s", m["address"].(string)))
+	buf.WriteString(m["address"].(string))
 
 	h := hashcode.String(buf.String())
 	log.Printf("[DEBUG] hashIPInfoIPs(): %v -> %v", buf.String(), h)

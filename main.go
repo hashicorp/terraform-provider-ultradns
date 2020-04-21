@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/hashicorp/terraform/plugin"
-	"github.com/terraform-providers/terraform-provider-ultradns/ultradns"
+	"github.com/hashicorp/terraform-plugin-sdk/plugin"
+	"github.com/manheim/terraform-provider-ultradns/ultradns"
 )
 
 func main() {

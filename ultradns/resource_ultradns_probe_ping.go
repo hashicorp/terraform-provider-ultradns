@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/Ensighten/udnssdk"
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func resourceUltradnsProbePing() *schema.Resource {
@@ -52,11 +52,6 @@ func resourceUltradnsProbePing() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem:     schemaPingProbe(),
-			},
-			// Computed
-			"id": {
-				Type:     schema.TypeString,
-				Computed: true,
 			},
 		},
 	}
