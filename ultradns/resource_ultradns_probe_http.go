@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/Ensighten/udnssdk"
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/terra-farm/udnssdk"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func resourceUltradnsProbeHTTP() *schema.Resource {
@@ -55,7 +55,7 @@ func resourceUltradnsProbeHTTP() *schema.Resource {
 				Elem:     schemaHTTPProbe(),
 			},
 			// Computed
-			"id": {
+			"http_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -138,7 +138,7 @@ func resourceUltradnsProbeHTTPCreate(d *schema.ResourceData, meta interface{}) e
 	uri := resp.Header.Get("Location")
 	d.Set("uri", uri)
 	d.SetId(uri)
-	log.Printf("[INFO] ultradns_probe_http.id: %v", d.Id())
+	log.Printf("[INFO] ultradns_probe_http.http_id: %v", d.Id())
 
 	return resourceUltradnsProbeHTTPRead(d, meta)
 }
