@@ -1,4 +1,4 @@
-## 0.1.2 (Unreleased)
+0.1.2 (Unreleased)
 - Upgrade plugin to terraform 0.12
 - Modified dependencies
 - Upgraded testcases
