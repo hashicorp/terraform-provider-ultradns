@@ -34,7 +34,7 @@ Building The Provider
 Clone repository in HOME directory 
 
 ```sh
-$ git clone https://git.nexgen.neustar.biz/ultradns/terraform-provider-ultradns.git
+$ git clone https://github.com/terraform-providers/terraform-provider-ultradns.git 
 ```
 
 Enter the provider directory and build the provider
