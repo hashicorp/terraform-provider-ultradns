@@ -11,7 +11,7 @@ provider "ultradns" {
 
 # Add a record to the domain
 resource "ultradns_record" "foobar" {
-  zone  = "1keufrf3.test."
+  zone  = "${var.ULTRADNS_DOMAINNAME}."
   name  = "terraform"
   rdata = ["192.168.0.11"]
   type  = "A"
@@ -19,7 +19,7 @@ resource "ultradns_record" "foobar" {
 }
 
 resource "ultradns_rdpool" "it" {
-  zone        = "1keufrf3.test"
+  zone        = "${var.ULTRADNS_DOMAINNAME}"
   name        = "test-rdpool-minimal"
   ttl         = 300
   description = "Minimal RD Pool"
@@ -28,8 +28,8 @@ resource "ultradns_rdpool" "it" {
 }
 
 resource "ultradns_tcpool" "it" {
-  zone        = "1keufrf3.test"
-  name        = "1keufrf3.test"
+  zone        = "${var.ULTRADNS_DOMAINNAME}"
+  name        = "${var.ULTRADNS_DOMAINNAME}"
   ttl         = 300
   description = "traffic controller pool with all settings tuned"
   act_on_probes = false
@@ -52,7 +52,7 @@ resource "ultradns_tcpool" "it" {
 }
 
 resource "ultradns_record" "it" {
-  zone = "1keufrf3.test"
+  zone = "${var.ULTRADNS_DOMAINNAME}"
   name  = "test-record-txt"
   rdata = [
     "simple answer",
@@ -65,7 +65,7 @@ resource "ultradns_record" "it" {
 }
 
 resource "ultradns_tcpool" "test-probe-ping-pool" {
-  zone  = "1keufrf3.test"
+  zone  = "${var.ULTRADNS_DOMAINNAME}"
   name  = "testprobepingpool"
   ttl   = 30
   description = "traffic controller pool with probes"
@@ -99,7 +99,7 @@ resource "ultradns_tcpool" "test-probe-ping-pool" {
 }
 
 resource "ultradns_probe_ping" "it" {
-  zone  = "1keufrf3.test"
+  zone  = "${var.ULTRADNS_DOMAINNAME}"
   name  = "testprobepingpool"
   agents = ["DALLAS", "AMSTERDAM"]
   interval  = "ONE_MINUTE"
@@ -128,7 +128,7 @@ resource "ultradns_probe_ping" "it" {
 }
 
 resource "ultradns_tcpool" "test-tcp-pool-minimal" {
-  zone = "1keufrf3.test"
+  zone = "${var.ULTRADNS_DOMAINNAME}"
   name = "testprobehttpminimal.com"
   ttl         = 30
   description = "traffic controller pool with probes"
@@ -162,7 +162,7 @@ resource "ultradns_tcpool" "test-tcp-pool-minimal" {
 }
 
 resource "ultradns_probe_http" "test-probe-http-minimal" {
-  zone = "1keufrf3.test"
+  zone = "${var.ULTRADNS_DOMAINNAME}"
   name = "testprobehttpminimal.com"
   pool_record = "10.2.0.1"
   agents = ["DALLAS", "AMSTERDAM"]
@@ -194,7 +194,7 @@ resource "ultradns_probe_http" "test-probe-http-minimal" {
 }
 
 resource "ultradns_tcpool" "test-tcp-pool-maximal" {
-  zone  = "1keufrf3.test"
+  zone  = "${var.ULTRADNS_DOMAINNAME}"
   name  = "testprobehttpmaximal.com"
   ttl   = 30
   description = "traffic controller pool with probes"
@@ -226,7 +226,7 @@ resource "ultradns_tcpool" "test-tcp-pool-maximal" {
 }
 
 resource "ultradns_probe_http" "test-probe-http-maximal" {
-  zone = "1keufrf3.test"
+  zone = "${var.ULTRADNS_DOMAINNAME}"
   name = "testprobehttpmaximal.com"
   pool_record = "10.2.1.1"
 
@@ -283,7 +283,7 @@ resource "ultradns_probe_http" "test-probe-http-maximal" {
 }
 
 resource "ultradns_dirpool" "test-dirpool-minimal" {
-  zone        = "1keufrf3.test"
+  zone        = "${var.ULTRADNS_DOMAINNAME}"
   name        = "testdirpoolminimal.com"
   type        = "A"
   ttl         = 300
@@ -296,7 +296,7 @@ resource "ultradns_dirpool" "test-dirpool-minimal" {
 }
 
 resource "ultradns_dirpool" "test-dirpool-maximal" {
-  zone        = "1keufrf3.test"
+  zone        = "${var.ULTRADNS_DOMAINNAME}"
   name        = "testdirpoolmaximal.com"
   type        = "A"
   ttl         = 300
