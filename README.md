@@ -31,7 +31,7 @@ Requirements
 Building The Provider
 ---------------------
 
-Clone repository in HOME directory 
+Clone repository in HOME directory
 
 ```sh
 $ git clone https://github.com/terraform-providers/terraform-provider-ultradns.git terraform-provider-ultradns
@@ -66,20 +66,27 @@ $ make test
 
 In order to run the full suite of Acceptance tests, run `make testacc`.
 
-*Note:* Acceptance tests create real resources, and often cost money to run.
-*Note:* The Domain should be already present at UltraDNS before running Acceptence Test Suite
+- *Note:* Acceptance tests create real resources, and often cost money to run.
+
+- *Note:* "{terraform_plugin_directory}" is the `terraform.d` directory where we will place the binaries
+
+- *Note:*  The test domain specified in TF_VAR_ULTRADNS_DOMAINNAME must already be present at UltraDNS before running Acceptance Test Suite
 
 ```sh
+$ cp terraform-provider-ultradns ${terraform_plugin_directory}/plugins
 $ export TF_VAR_ULTRADNS_USERNAME='***********'
 $ export TF_VAR_ULTRADNS_PASSWORD='***********'
-$ export TF_VAR_ULTRADNS_BASEURL='RestAPI path'
-$ export TF_VAR_ULTRADNS_DOMAINNAME="Domain Name"
+$ export TF_VAR_ULTRADNS_BASEURL='https://api.ultradns.com'
+$ export TF_VAR_ULTRADNS_DOMAINNAME='Domain Name'
 $ make testacc
 ```
 
 In order to add the compiled plugin to terraform, you can simply run the following:
-*Note:* "{terraform_project_directory}" is the directory where actual project is written to be applied by terraform.
-*Note:* "{terraform_plugin_directory}" is the `terraform.d` directory where we will place the binaries
+
+- *Note:* "{terraform_project_directory}" is the directory where actual project is written to be applied by terraform.
+
+
+- *Note:* "{terraform_plugin_directory}" is the `terraform.d` directory where we will place the binaries
 ```sh
 $ cp terraform-provider-ultradns ${terraform_plugin_directory}/plugins
 $ cd ${terraform_project_directory}/
