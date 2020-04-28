@@ -25,24 +25,25 @@ Terraform Provider
 Requirements
 ------------
 
--	[Terraform](https://www.terraform.io/downloads.html) 0.10.x
--	[Go](https://golang.org/doc/install) 1.11 (to build the provider plugin)
+-	[Terraform](https://www.terraform.io/downloads.html) 0.11.x or higher
+-	[Go](https://golang.org/doc/install) 1.14 or higher (to build the provider plugin)
 
 Building The Provider
 ---------------------
 
-Clone repository to: `$GOPATH/src/github.com/terraform-providers/terraform-provider-ultradns`
+Clone repository in HOME directory
 
 ```sh
-$ mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers
-$ git clone git@github.com:terraform-providers/terraform-provider-ultradns
+$ git clone https://github.com/terraform-providers/terraform-provider-ultradns.git terraform-provider-ultradns
 ```
 
 Enter the provider directory and build the provider
 
 ```sh
-$ cd $GOPATH/src/github.com/terraform-providers/terraform-provider-ultradns
-$ make build
+$ go mod tidy
+$ go mod vendor
+$ make fmt
+$ go build -o terraform-provider-ultradns
 ```
 
 Using the provider
@@ -52,16 +53,10 @@ Using the provider
 Developing the Provider
 ---------------------------
 
-If you wish to work on the provider, you'll first need [Go](http://www.golang.org) installed on your machine (version 1.11+ is *required*). You'll also need to correctly setup a [GOPATH](http://golang.org/doc/code.html#GOPATH), as well as adding `$GOPATH/bin` to your `$PATH`.
+If you wish to work on the provider, you'll first need [Go](http://www.golang.org) installed on your machine (version 1.14+ is *required*). You'll also need to correctly setup a [GOPATH](http://golang.org/doc/code.html#GOPATH), as well as adding `$GOPATH/bin` to your `$PATH`.
 
-To compile the provider, run `make build`. This will build the provider and put the provider binary in the `$GOPATH/bin` directory.
+To compile the provider, run `go build -o terraform-provider-ultradns`. This will build the provider and put the provider binary in current directory.
 
-```sh
-$ make bin
-...
-$ $GOPATH/bin/terraform-provider-ultradns
-...
-```
 
 In order to test the provider, you can simply run `make test`.
 
@@ -71,8 +66,30 @@ $ make test
 
 In order to run the full suite of Acceptance tests, run `make testacc`.
 
-*Note:* Acceptance tests create real resources, and often cost money to run.
+- *Note:* Acceptance tests create real resources, and often cost money to run.
+
+- *Note:* "{terraform_plugin_directory}" is the `terraform.d` directory where we will place the binaries
+
+- *Note:*  The test domain specified in TF_VAR_ULTRADNS_DOMAINNAME must already be present at UltraDNS before running Acceptance Test Suite
 
 ```sh
+$ cp terraform-provider-ultradns ${terraform_plugin_directory}/plugins
+$ export TF_VAR_ULTRADNS_USERNAME='***********'
+$ export TF_VAR_ULTRADNS_PASSWORD='***********'
+$ export TF_VAR_ULTRADNS_BASEURL='https://api.ultradns.com'
+$ export TF_VAR_ULTRADNS_DOMAINNAME='Domain Name'
 $ make testacc
+```
+
+In order to add the compiled plugin to terraform, you can simply run the following:
+
+- *Note:* "{terraform_project_directory}" is the directory where actual project is written to be applied by terraform.
+
+
+- *Note:* "{terraform_plugin_directory}" is the `terraform.d` directory where we will place the binaries
+```sh
+$ cp terraform-provider-ultradns ${terraform_plugin_directory}/plugins
+$ cd ${terraform_project_directory}/
+$ terraform init
+$ terraform validate
 ```

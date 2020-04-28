@@ -4,7 +4,7 @@ services:
 - docker
 language: go
 go:
-  - "1.11.x"
+  - "1.14.x"
 
 install:
 # This script is used by the Travis build to install a cookie for
@@ -12,11 +12,12 @@ install:
 # packages that live there.
 # See: https://github.com/golang/go/issues/12933
 - bash scripts/gogetcookie.sh
-- go get github.com/kardianos/govendor
 
 script:
+- go mod tidy 
+- go mod vendor
+- make fmt
 - make test
-- make vendor-status
 - make vet
 - make website-test
 
