@@ -8,8 +8,6 @@ description: |-
 
 # UltraDNS Provider
 
-~> **This provider is unmaintained**, read more details in the [README](https://github.com/terraform-providers/terraform-provider-ultradns/blob/master/README.md).
-
 The UltraDNS provider is used to interact with the
 resources supported by UltraDNS. The provider needs to be configured
 with the proper credentials before it can be used.
