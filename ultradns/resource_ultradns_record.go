@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	log "github.com/sirupsen/logrus"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/terra-farm/udnssdk"
 )
@@ -49,7 +49,6 @@ func populateResourceDataFromRRSet(r udnssdk.RRSet, d *schema.ResourceData) erro
 		typ = (strings.Split(r.RRType," "))[0]
 		d.Set("type",typ)
 	}
-	log.Infof("type = %s %s %s",typ,zone,strconv.Itoa(r.TTL))
 	// ttl
 	d.Set("ttl", strconv.Itoa(r.TTL))
 	// rdata
@@ -220,29 +219,11 @@ func resourceUltraDNSRecordDelete(d *schema.ResourceData, meta interface{}) erro
 	return nil
 }
 
-// Conversion helper functions
-
-func parse(id string) (name, zone string) {
-	var id_parts = strings.Split(id, ".")
-	for x := len(id_parts) - 1; x >= 0; x-- {
-		var n = strings.Join(id_parts[0:x], ".")
-		var z = strings.Join(id_parts[x:], ".")
-		if len(n) < len(z) {
-			break
-		}
-		if strings.HasSuffix(n, z) {
-			name = n
-			zone = z
-			return
-		}
-	}
-	return
-}
 
 func resourceUltradnsRecordImport(
 	d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	log.Infof("id= %s",d.Id())
-//	name,zone := parse(d.Id())
+	name,zone := parse(d.Id())
 	newId := strings.TrimSuffix(d.Id(),".")
 	attributes := strings.SplitN(newId, ".", 2)
 	if len(attributes) > 1{
