@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/Ensighten/udnssdk"
+	"github.com/terra-farm/udnssdk"
 )
 
 // Config collects the connection service-endpoint and credentials
