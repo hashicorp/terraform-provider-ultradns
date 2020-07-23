@@ -40,4 +40,10 @@ func testAccPreCheck(t *testing.T) {
 	if v := os.Getenv("ULTRADNS_DOMAIN"); v == "" {
 		t.Fatal("ULTRADNS_DOMAIN must be set for acceptance tests. The domain is used to create and destroy record against.")
 	}
+
+        if v := os.Getenv("ULTRADNS_BASEURL"); v == "" {
+                t.Fatal("ULTRADNS_BASEURL must be set for acceptance tests")
+        }
+
+
 }

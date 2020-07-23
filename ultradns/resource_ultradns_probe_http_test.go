@@ -3,14 +3,15 @@ package ultradns
 import (
 	"fmt"
 	"testing"
+	"os"
 
-	"github.com/terra-farm/udnssdk"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/terra-farm/udnssdk"
 )
 
 func TestAccUltradnsProbeHTTP(t *testing.T) {
 	var record udnssdk.RRSet
-	domain := "ultradns.phinze.com"
+	domain,_ := os.LookupEnv("ULTRADNS_DOMAIN")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -30,7 +31,7 @@ func TestAccUltradnsProbeHTTP(t *testing.T) {
 					resource.TestCheckResourceAttr("ultradns_probe_http.it", "interval", "ONE_MINUTE"),
 					resource.TestCheckResourceAttr("ultradns_probe_http.it", "threshold", "2"),
 					resource.TestCheckResourceAttr("ultradns_probe_http.it", "http_probe.0.transaction.0.method", "GET"),
-					resource.TestCheckResourceAttr("ultradns_probe_http.it", "http_probe.0.transaction.0.url", "http://localhost/index"),
+					resource.TestCheckResourceAttr("ultradns_probe_http.it", "http_probe.0.transaction.0.url", "http://google.com/"),
 					resource.TestCheckResourceAttr("ultradns_probe_http.it", "http_probe.0.transaction.0.limit.#", "2"),
 
 					resource.TestCheckResourceAttr("ultradns_probe_http.it", "http_probe.0.transaction.0.limit.1959786783.name", "connect"),
@@ -57,7 +58,7 @@ func TestAccUltradnsProbeHTTP(t *testing.T) {
 					resource.TestCheckResourceAttr("ultradns_probe_http.it", "interval", "ONE_MINUTE"),
 					resource.TestCheckResourceAttr("ultradns_probe_http.it", "threshold", "2"),
 					resource.TestCheckResourceAttr("ultradns_probe_http.it", "http_probe.0.transaction.0.method", "POST"),
-					resource.TestCheckResourceAttr("ultradns_probe_http.it", "http_probe.0.transaction.0.url", "http://localhost/index"),
+					resource.TestCheckResourceAttr("ultradns_probe_http.it", "http_probe.0.transaction.0.url", "http://google.com/"),
 
 					resource.TestCheckResourceAttr("ultradns_probe_http.it", "http_probe.0.transaction.0.limit.#", "4"),
 
@@ -141,7 +142,7 @@ resource "ultradns_probe_http" "it" {
   http_probe {
     transaction {
       method = "GET"
-      url    = "http://localhost/index"
+      url    = "http://google.com/"
 
       limit {
         name     = "run"
@@ -214,7 +215,7 @@ resource "ultradns_probe_http" "it" {
   http_probe {
     transaction {
       method           = "POST"
-      url              = "http://localhost/index"
+      url              = "http://google.com/"
       transmitted_data = "{}"
       follow_redirects = true
 

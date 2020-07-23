@@ -11,11 +11,14 @@ provider "ultradns" {
 
 # Add a record to the domain
 resource "ultradns_record" "foobar" {
-  zone  = "${var.ULTRADNS_DOMAINNAME}."
-  name  = "terraform"
-  rdata = ["192.168.0.11"]
-  type  = "A"
-  ttl   = 3600
+    name     = "terraform"
+    rdata    = [
+        "192.168.0.12",
+    ]
+    ttl      = "3600"
+    type     = "A"
+    zone     = "kubernetes-ultradns-provider-test.com"
+
 }
 
 resource "ultradns_rdpool" "it" {

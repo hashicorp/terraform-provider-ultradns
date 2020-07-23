@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/terra-farm/udnssdk"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/terra-farm/udnssdk"
 )
 
 func TestAccUltradnsRdpool(t *testing.T) {

@@ -3,9 +3,10 @@ package ultradns
 import (
 	"fmt"
 	"log"
+	"strings"
 
-	"github.com/terra-farm/udnssdk"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/terra-farm/udnssdk"
 )
 
 func resourceUltradnsProbePing() *schema.Resource {
@@ -78,7 +79,7 @@ func resourceUltradnsProbePingCreate(d *schema.ResourceData, meta interface{}) e
 
 	uri := resp.Header.Get("Location")
 	d.Set("uri", uri)
-	d.SetId(uri)
+	d.SetId((strings.Split(uri,"probes/"))[1])
 	log.Printf("[INFO] ultradns_probe_ping.ping_id: %v", d.Id())
 
 	return resourceUltradnsProbePingRead(d, meta)

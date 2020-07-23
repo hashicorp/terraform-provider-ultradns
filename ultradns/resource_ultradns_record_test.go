@@ -4,10 +4,60 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/terra-farm/udnssdk"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/terra-farm/udnssdk"
+	"os"
+	log "github.com/sirupsen/logrus"
+
 )
+
+func TestAccUltradnsRecordTest(t *testing.T) {
+	var record udnssdk.RRSet
+	domain,_ := os.LookupEnv("TF_VAR_ULTRADNS_DOMAINNAME")
+	log.Infof("%v",fmt.Sprintf(testCfgRecordMinimal, domain))
+	resource.Test(t, resource.TestCase{
+		Providers:    testAccProviders,
+		CheckDestroy: testAccRecordCheckDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(testCfgRecordMinimal, domain),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckUltradnsRecordExists("ultradns_record.it", &record),
+					resource.TestCheckResourceAttr("ultradns_record.it", "zone", domain),
+					resource.TestCheckResourceAttr("ultradns_record.it", "name", "test-record"),
+					resource.TestCheckResourceAttr("ultradns_record.it", "rdata.3994963683", "10.5.0.1"),
+				),
+			},
+			{
+				Config: fmt.Sprintf(testCfgRecordMinimal, domain),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckUltradnsRecordExists("ultradns_record.it", &record),
+					resource.TestCheckResourceAttr("ultradns_record.it", "zone", domain),
+					resource.TestCheckResourceAttr("ultradns_record.it", "name", "test-record"),
+					resource.TestCheckResourceAttr("ultradns_record.it", "rdata.3994963683", "10.5.0.1"),
+				),
+			},
+			{
+				Config: fmt.Sprintf(testCfgRecordUpdated, domain),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckUltradnsRecordExists("ultradns_record.it", &record),
+					resource.TestCheckResourceAttr("ultradns_record.it", "zone", domain),
+					resource.TestCheckResourceAttr("ultradns_record.it", "name", "test-record"),
+					resource.TestCheckResourceAttr("ultradns_record.it", "rdata.1998004057", "10.5.0.2"),
+				),
+			},
+
+			{
+				ResourceName:      "ultradns_record.it",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+
 
 func TestAccUltradnsRecord(t *testing.T) {
 	var record udnssdk.RRSet
@@ -45,6 +95,12 @@ func TestAccUltradnsRecord(t *testing.T) {
 					resource.TestCheckResourceAttr("ultradns_record.it", "name", "test-record"),
 					resource.TestCheckResourceAttr("ultradns_record.it", "rdata.1998004057", "10.5.0.2"),
 				),
+			},
+
+			{
+				ResourceName:      "ultradns_record.it",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -104,7 +160,6 @@ const testCfgRecordMinimal = `
 resource "ultradns_record" "it" {
   zone = "%s"
   name  = "test-record"
-
   rdata = ["10.5.0.1"]
   type  = "A"
   ttl   = 3600
@@ -115,7 +170,6 @@ const testCfgRecordUpdated = `
 resource "ultradns_record" "it" {
   zone = "%s"
   name  = "test-record"
-
   rdata = ["10.5.0.2"]
   type  = "A"
   ttl   = 3600
@@ -126,7 +180,6 @@ const testCfgRecordTXTMinimal = `
 resource "ultradns_record" "it" {
   zone = "%s"
   name  = "test-record-txt"
-
   rdata = [
     "simple answer",
     "backslash answer \\",

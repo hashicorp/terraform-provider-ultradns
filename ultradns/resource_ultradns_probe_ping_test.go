@@ -3,14 +3,15 @@ package ultradns
 import (
 	"fmt"
 	"testing"
+	"os"
 
-	"github.com/terra-farm/udnssdk"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/terra-farm/udnssdk"
 )
 
 func TestAccUltradnsProbePing(t *testing.T) {
 	var record udnssdk.RRSet
-	domain := "ultradns.phinze.com"
+	domain,_ := os.LookupEnv("ULTRADNS_DOMAIN")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },

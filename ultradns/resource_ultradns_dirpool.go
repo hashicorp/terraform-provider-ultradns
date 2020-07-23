@@ -7,11 +7,11 @@ import (
 	"log"
 	"strings"
 
-	"github.com/terra-farm/udnssdk"
 	"github.com/fatih/structs"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/mitchellh/mapstructure"
+	"github.com/terra-farm/udnssdk"
 )
 
 func resourceUltradnsDirpool() *schema.Resource {
