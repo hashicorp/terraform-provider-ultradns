@@ -2,11 +2,11 @@ package ultradns
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	log "github.com/sirupsen/logrus"
 	"github.com/terra-farm/udnssdk"
 )
 
@@ -199,6 +199,7 @@ func newRRSetResourceFromRdpool(d *schema.ResourceData) (rRSetResource, error) {
 	}
 	if attr, ok := d.GetOk("rdata"); ok {
 		rdata := attr.(*schema.Set).List()
+		log.Infof("%v", rdata)
 		r.RData = make([]string, len(rdata))
 		for i, j := range rdata {
 			r.RData[i] = j.(string)

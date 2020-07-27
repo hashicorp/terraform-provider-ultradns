@@ -79,7 +79,7 @@ func resourceUltradnsProbePingCreate(d *schema.ResourceData, meta interface{}) e
 
 	uri := resp.Header.Get("Location")
 	d.Set("uri", uri)
-	d.SetId((strings.Split(uri,"probes/"))[1])
+	d.SetId((strings.Split(uri, "probes/"))[1])
 	log.Printf("[INFO] ultradns_probe_ping.ping_id: %v", d.Id())
 
 	return resourceUltradnsProbePingRead(d, meta)

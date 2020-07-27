@@ -9,18 +9,6 @@ provider "ultradns" {
   baseurl  = "${var.ULTRADNS_BASEURL}"
 }
 
-# Add a record to the domain
-resource "ultradns_record" "foobar" {
-    name     = "terraform"
-    rdata    = [
-        "192.168.0.12",
-    ]
-    ttl      = "3600"
-    type     = "A"
-    zone     = "kubernetes-ultradns-provider-test.com"
-
-}
-
 resource "ultradns_rdpool" "it" {
   zone        = "${var.ULTRADNS_DOMAINNAME}"
   name        = "test-rdpool-minimal"
@@ -379,3 +367,13 @@ resource "ultradns_dirpool" "test-dirpool-maximal" {
   }
 }
 
+# ultradns_record.foobar:
+resource "ultradns_record" "foobar" {
+    name     = "terraform"
+    rdata    = [
+        "192.168.0.12",
+    ]
+    ttl      = "3600"
+    type     = "A"
+    zone     = "kubernetes-ultradns-provider-test.com"
+}

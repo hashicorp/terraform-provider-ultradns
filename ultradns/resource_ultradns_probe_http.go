@@ -5,8 +5,8 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/terra-farm/udnssdk"
 	log "github.com/sirupsen/logrus"
+	"github.com/terra-farm/udnssdk"
 )
 
 func resourceUltradnsProbeHTTP() *schema.Resource {
@@ -137,9 +137,9 @@ func resourceUltradnsProbeHTTPCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	uri := resp.Header.Get("Location")
-	log.Infof("uri %v",uri)
+	log.Infof("uri %v", uri)
 	d.Set("uri", uri)
-	d.SetId((strings.Split(uri,"probes/"))[1])
+	d.SetId((strings.Split(uri, "probes/"))[1])
 	log.Infof("[INFO] ultradns_probe_http.http_id: %v", d.Id())
 
 	return resourceUltradnsProbeHTTPRead(d, meta)
@@ -216,7 +216,7 @@ func makeHTTPProbeResource(d *schema.ResourceData) (probeResource, error) {
 	p.Zone = d.Get("zone").(string)
 	p.Name = d.Get("name").(string)
 	p.ID = d.Id()
-	log.Infof("%s d.Id  = ",d.Id())
+	log.Infof("%s d.Id  = ", d.Id())
 	p.Interval = d.Get("interval").(string)
 	p.PoolRecord = d.Get("pool_record").(string)
 	p.Threshold = d.Get("threshold").(int)

@@ -46,7 +46,7 @@ func (r rRSetResource) RRSet() udnssdk.RRSet {
 }
 
 func (r rRSetResource) ID() string {
-	return fmt.Sprintf("%s.%s", r.OwnerName, r.Zone)
+	return fmt.Sprintf("%s:%s", r.OwnerName, r.Zone)
 }
 
 func unzipRdataHosts(configured []interface{}) []string {

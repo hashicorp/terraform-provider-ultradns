@@ -2,6 +2,7 @@ package ultradns
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -10,7 +11,7 @@ import (
 
 func TestAccUltradnsRdpool(t *testing.T) {
 	var record udnssdk.RRSet
-	domain := "ultradns.phinze.com"
+	domain, _ := os.LookupEnv("ULTRADNS_DOMAIN")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -32,8 +33,8 @@ func TestAccUltradnsRdpool(t *testing.T) {
 					resource.TestCheckResourceAttr("ultradns_rdpool.it", "description", "Minimal RD Pool"),
 					resource.TestCheckResourceAttr("ultradns_rdpool.it", "rdata.2847814707.priority", "1"),
 					// Generated
-					resource.TestCheckResourceAttr("ultradns_rdpool.it", "id", "test-rdpool-minimal.ultradns.phinze.com"),
-					resource.TestCheckResourceAttr("ultradns_rdpool.it", "hostname", "test-rdpool-minimal.ultradns.phinze.com."),
+					resource.TestCheckResourceAttr("ultradns_rdpool.it", "id", fmt.Sprintf("test-rdpool-minimal.%s", domain)),
+					resource.TestCheckResourceAttr("ultradns_rdpool.it", "hostname", fmt.Sprintf("test-rdpool-minimal.%s", domain)),
 				),
 			},
 			{
@@ -59,8 +60,8 @@ func TestAccUltradnsRdpool(t *testing.T) {
 					resource.TestCheckResourceAttr("ultradns_rdpool.it", "rdata.829755326.priority", "2"),
 
 					// Generated
-					resource.TestCheckResourceAttr("ultradns_rdpool.it", "id", "test-rdpool-maximal.ultradns.phinze.com"),
-					resource.TestCheckResourceAttr("ultradns_rdpool.it", "hostname", "test-rdpool-maximal.ultradns.phinze.com."),
+					resource.TestCheckResourceAttr("ultradns_rdpool.it", "id", fmt.Sprintf("test-rdpool-maximal.%s", domain)),
+					resource.TestCheckResourceAttr("ultradns_rdpool.it", "hostname", fmt.Sprintf("test-rdpool-maximal.%s", domain)),
 				),
 			},
 		},

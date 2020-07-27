@@ -3,11 +3,11 @@ package ultradns
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	log "github.com/sirupsen/logrus"
+	"github.com/terra-farm/udnssdk"
 	"strconv"
 	"strings"
-
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/terra-farm/udnssdk"
 )
 
 func newRRSetResource(d *schema.ResourceData) (rRSetResource, error) {
@@ -46,9 +46,10 @@ func populateResourceDataFromRRSet(r udnssdk.RRSet, d *schema.ResourceData) erro
 	zone := d.Get("zone")
 	typ := d.Get("type")
 	if typ == "" {
-		typ = (strings.Split(r.RRType," "))[0]
-		d.Set("type",typ)
+		typ = (strings.Split(r.RRType, " "))[0]
+		d.Set("type", typ)
 	}
+	log.Infof("type = %s %s %s", typ, zone, strconv.Itoa(r.TTL))
 	// ttl
 	d.Set("ttl", strconv.Itoa(r.TTL))
 	// rdata
@@ -92,7 +93,7 @@ func resourceUltradnsRecord() *schema.Resource {
 		Read:   resourceUltraDNSRecordRead,
 		Update: resourceUltraDNSRecordUpdate,
 		Delete: resourceUltraDNSRecordDelete,
-		
+
 		Schema: map[string]*schema.Schema{
 			// Required
 			"zone": {
@@ -129,8 +130,8 @@ func resourceUltradnsRecord() *schema.Resource {
 			},
 		},
 
-                Importer: &schema.ResourceImporter{
-                        State: resourceUltradnsRecordImport ,
+		Importer: &schema.ResourceImporter{
+			State: resourceUltradnsRecordImport,
 		},
 	}
 }
@@ -150,7 +151,6 @@ func resourceUltraDNSRecordCreate(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return fmt.Errorf("create failed: %v", err)
 	}
-
 	d.SetId(r.ID())
 	log.Printf("[INFO] ultradns_record.id: %v", d.Id())
 
@@ -166,7 +166,7 @@ func resourceUltraDNSRecordRead(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	rrsets, err := client.RRSets.Select(r.RRSetKey())
-	log.Infof("RRSET INFO: %v",rrsets)
+	log.Infof("RRSET INFO: %v", rrsets)
 	if err != nil {
 		uderr, ok := err.(*udnssdk.ErrorResponseList)
 		if ok {
@@ -219,20 +219,38 @@ func resourceUltraDNSRecordDelete(d *schema.ResourceData, meta interface{}) erro
 	return nil
 }
 
+// Conversion helper functions
+
+func parse(id string) (name, zone string) {
+	var id_parts = strings.Split(id, ".")
+	for x := len(id_parts) - 1; x >= 0; x-- {
+		var n = strings.Join(id_parts[0:x], ".")
+		var z = strings.Join(id_parts[x:], ".")
+		if len(n) < len(z) {
+			break
+		}
+		if strings.HasSuffix(n, z) {
+			name = n
+			zone = z
+			return
+		}
+	}
+	return
+}
 
 func resourceUltradnsRecordImport(
 	d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	log.Infof("id= %s",d.Id())
-	name,zone := parse(d.Id())
-	newId := strings.TrimSuffix(d.Id(),".")
-	attributes := strings.SplitN(newId, ".", 2)
-	if len(attributes) > 1{
-		d.Set("zone",attributes[1])
-	        d.Set("name",attributes[0])
-		log.Infof("name = %s   %s",attributes[0],attributes[1])
-	}else{
-		d.Set("zone",attributes)
-		d.Set("name",attributes)
+	log.Infof("id= %s", d.Id())
+	//	name,zone := parse(d.Id())
+	newId := strings.TrimSuffix(d.Id(), ".")
+	attributes := strings.SplitN(newId, ":", 2)
+	if len(attributes) > 1 {
+		d.Set("zone", attributes[1])
+		d.Set("name", attributes[0])
+		log.Infof("name = %s   %s", attributes[0], attributes[1])
+	} else {
+		d.Set("zone", attributes)
+		d.Set("name", attributes)
 	}
 	return []*schema.ResourceData{d}, nil
 }

@@ -2,67 +2,18 @@ package ultradns
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/terra-farm/udnssdk"
-	"os"
-	log "github.com/sirupsen/logrus"
-
 )
-
-func TestAccUltradnsRecordTest(t *testing.T) {
-	var record udnssdk.RRSet
-	domain,_ := os.LookupEnv("TF_VAR_ULTRADNS_DOMAINNAME")
-	log.Infof("%v",fmt.Sprintf(testCfgRecordMinimal, domain))
-	resource.Test(t, resource.TestCase{
-		Providers:    testAccProviders,
-		CheckDestroy: testAccRecordCheckDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: fmt.Sprintf(testCfgRecordMinimal, domain),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckUltradnsRecordExists("ultradns_record.it", &record),
-					resource.TestCheckResourceAttr("ultradns_record.it", "zone", domain),
-					resource.TestCheckResourceAttr("ultradns_record.it", "name", "test-record"),
-					resource.TestCheckResourceAttr("ultradns_record.it", "rdata.3994963683", "10.5.0.1"),
-				),
-			},
-			{
-				Config: fmt.Sprintf(testCfgRecordMinimal, domain),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckUltradnsRecordExists("ultradns_record.it", &record),
-					resource.TestCheckResourceAttr("ultradns_record.it", "zone", domain),
-					resource.TestCheckResourceAttr("ultradns_record.it", "name", "test-record"),
-					resource.TestCheckResourceAttr("ultradns_record.it", "rdata.3994963683", "10.5.0.1"),
-				),
-			},
-			{
-				Config: fmt.Sprintf(testCfgRecordUpdated, domain),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckUltradnsRecordExists("ultradns_record.it", &record),
-					resource.TestCheckResourceAttr("ultradns_record.it", "zone", domain),
-					resource.TestCheckResourceAttr("ultradns_record.it", "name", "test-record"),
-					resource.TestCheckResourceAttr("ultradns_record.it", "rdata.1998004057", "10.5.0.2"),
-				),
-			},
-
-			{
-				ResourceName:      "ultradns_record.it",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-
 
 func TestAccUltradnsRecord(t *testing.T) {
 	var record udnssdk.RRSet
 	// domain := os.Getenv("ULTRADNS_DOMAIN")
-	domain := "ultradns.phinze.com"
+	domain, _ := os.LookupEnv("ULTRADNS_DOMAIN")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -109,7 +60,7 @@ func TestAccUltradnsRecord(t *testing.T) {
 func TestAccUltradnsRecordTXT(t *testing.T) {
 	var record udnssdk.RRSet
 	// domain := os.Getenv("ULTRADNS_DOMAIN")
-	domain := "ultradns.phinze.com"
+	domain, _ := os.LookupEnv("ULTRADNS_DOMAIN")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
