@@ -2,12 +2,14 @@ package ultradns
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"strconv"
+	"strings"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	log "github.com/sirupsen/logrus"
 	"github.com/terra-farm/udnssdk"
-	"strconv"
-	"strings"
 )
 
 func newRRSetResource(d *schema.ResourceData) (rRSetResource, error) {
@@ -219,38 +221,18 @@ func resourceUltraDNSRecordDelete(d *schema.ResourceData, meta interface{}) erro
 	return nil
 }
 
-// Conversion helper functions
-
-func parse(id string) (name, zone string) {
-	var id_parts = strings.Split(id, ".")
-	for x := len(id_parts) - 1; x >= 0; x-- {
-		var n = strings.Join(id_parts[0:x], ".")
-		var z = strings.Join(id_parts[x:], ".")
-		if len(n) < len(z) {
-			break
-		}
-		if strings.HasSuffix(n, z) {
-			name = n
-			zone = z
-			return
-		}
-	}
-	return
-}
-
+// State Function to seperate id into appropriate name and zone
 func resourceUltradnsRecordImport(
 	d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	log.Infof("id= %s", d.Id())
-	//	name,zone := parse(d.Id())
 	newId := strings.TrimSuffix(d.Id(), ".")
 	attributes := strings.SplitN(newId, ":", 2)
 	if len(attributes) > 1 {
 		d.Set("zone", attributes[1])
 		d.Set("name", attributes[0])
-		log.Infof("name = %s   %s", attributes[0], attributes[1])
 	} else {
-		d.Set("zone", attributes)
-		d.Set("name", attributes)
+
+		return nil, errors.New("Wrong ID please provide proper ID in format name:zone ")
+
 	}
 	return []*schema.ResourceData{d}, nil
 }

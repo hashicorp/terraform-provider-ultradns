@@ -375,5 +375,5 @@ resource "ultradns_record" "foobar" {
     ]
     ttl      = "3600"
     type     = "A"
-    zone     = "kubernetes-ultradns-provider-test.com"
+    zone     = "${var.ULTRADNS_DOMAINNAME}"
 }

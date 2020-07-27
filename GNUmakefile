@@ -1,4 +1,4 @@
-TEST?=$$(go list ./... |grep -vE 'vendor|acceptence')
+TEST?=$$(go list ./... | grep -vE 'vendor|acceptence')
 GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
 WEBSITE_REPO=github.com/hashicorp/terraform-website
 PKG_NAME=ultradns
