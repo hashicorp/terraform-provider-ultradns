@@ -87,6 +87,13 @@ func TestAccUltradnsProbeHTTP(t *testing.T) {
 					resource.TestCheckResourceAttr("ultradns_probe_http.it", "http_probe.0.total_limits.0.fail", "15"),
 				),
 			},
+
+			{
+				ResourceName:      "ultradns_probe_http.it",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+
 		},
 	})
 }

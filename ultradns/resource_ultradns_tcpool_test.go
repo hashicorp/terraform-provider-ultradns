@@ -90,6 +90,13 @@ func TestAccUltradnsTcpool(t *testing.T) {
 					resource.TestCheckResourceAttr("ultradns_tcpool.it", "hostname", fmt.Sprintf("test-tcpool-maximal.%s.", domain)),
 				),
 			},
+
+			{
+				ResourceName:      "ultradns_tcpool.it",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+
 		},
 	})
 }

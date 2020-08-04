@@ -4,14 +4,16 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
+	"errors"
 	"strings"
+	_ "reflect"
 
 	"github.com/fatih/structs"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/mitchellh/mapstructure"
 	"github.com/terra-farm/udnssdk"
+	log "github.com/sirupsen/logrus"
 )
 
 func resourceUltradnsDirpool() *schema.Resource {
@@ -20,6 +22,10 @@ func resourceUltradnsDirpool() *schema.Resource {
 		Read:   resourceUltradnsDirpoolRead,
 		Update: resourceUltradnsDirpoolUpdate,
 		Delete: resourceUltradnsDirpoolDelete,
+
+		Importer: &schema.ResourceImporter{
+			State: resourceUltradnsDirpoolImport,
+		},
 
 		Schema: map[string]*schema.Schema{
 			// Required
@@ -283,6 +289,7 @@ func resourceUltradnsDirpoolRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
+
 	rrsets, err := client.RRSets.Select(rr.RRSetKey())
 	if err != nil {
 		uderr, ok := err.(*udnssdk.ErrorResponseList)
@@ -298,7 +305,7 @@ func resourceUltradnsDirpoolRead(d *schema.ResourceData, meta interface{}) error
 		}
 		return fmt.Errorf("resource not found: %v", err)
 	}
-
+	log.Infof("rrsets=%+v",rrsets)
 	r := rrsets[0]
 
 	return populateResourceFromDirpool(d, &r)
@@ -387,6 +394,14 @@ func populateResourceFromDirpool(d *schema.ResourceData, r *udnssdk.RRSet) error
 	zone := d.Get("zone")
 	// ttl
 	d.Set("ttl", r.TTL)
+
+	//type
+	typ := d.Get("type")
+	if typ == "" {
+		typ = (strings.Split(r.RRType, " "))[0]
+		d.Set("type", typ)
+	}
+
 	// hostname
 	if r.OwnerName == "" {
 		d.Set("hostname", zone)
@@ -416,12 +431,14 @@ func populateResourceFromDirpool(d *schema.ResourceData, r *udnssdk.RRSet) error
 	} else {
 		d.Set("conflict_resolve", p.ConflictResolve)
 	}
-
+	log.Infof("r.RData= %v and p.RDataInfo= %v",r.RData,p.RDataInfo)
 	rd := makeSetFromDirpoolRdata(r.RData, p.RDataInfo)
 	err = d.Set("rdata", rd)
 	if err != nil {
 		return fmt.Errorf("rdata set failed: %v, from %#v", err, rd)
 	}
+
+
 	return nil
 }
 
@@ -446,6 +463,7 @@ func makeDirpoolRdataInfo(configured interface{}) (udnssdk.DPRDataInfo, error) {
 	res := udnssdk.DPRDataInfo{
 		AllNonConfigured: data["all_non_configured"].(bool),
 	}
+
 	// IPInfo
 	ipInfo := data["ip_info"].([]interface{})
 	if len(ipInfo) >= 1 {
@@ -458,6 +476,7 @@ func makeDirpoolRdataInfo(configured interface{}) (udnssdk.DPRDataInfo, error) {
 		}
 		res.IPInfo = &ii
 	}
+
 	// GeoInfo
 	geoInfo := data["geo_info"].([]interface{})
 	if len(geoInfo) >= 1 {
@@ -470,12 +489,14 @@ func makeDirpoolRdataInfo(configured interface{}) (udnssdk.DPRDataInfo, error) {
 		}
 		res.GeoInfo = &gi
 	}
+
 	return res, nil
 }
 
 // makeGeoInfo converts a map[string]interface{} from an geo_info block
 // into an GeoInfo
 func makeGeoInfo(configured interface{}) (udnssdk.GeoInfo, error) {
+	log.Infof("In makeDirpoolRdataInfo")
 	var res udnssdk.GeoInfo
 	c := configured.(map[string]interface{})
 	err := mapDecode(c, &res)
@@ -503,6 +524,7 @@ func makeIPInfo(configured interface{}) (udnssdk.IPInfo, error) {
 
 	rawIps := c["ips"].(*schema.Set).List()
 	res.Ips = make([]udnssdk.IPAddrDTO, 0, len(rawIps))
+	
 	for _, rawIa := range rawIps {
 		var i udnssdk.IPAddrDTO
 		err = mapDecode(rawIa, &i)
@@ -624,4 +646,21 @@ func mapEncode(rawVal interface{}) map[string]interface{} {
 	s := structs.New(rawVal)
 	s.TagName = "terraform"
 	return s.Map()
+}
+
+
+// State Function to seperate id into appropriate name and zone
+func resourceUltradnsDirpoolImport(
+	d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	newId := strings.TrimSuffix(d.Id(), ".")
+	attributes := strings.SplitN(newId, ":", 2)
+	if len(attributes) > 1 {
+		d.Set("zone", attributes[1])
+		d.Set("name", attributes[0])
+	} else {
+
+		return nil, errors.New("Wrong ID please provide proper ID in format name:zone ")
+
+	}
+	return []*schema.ResourceData{d}, nil
 }
