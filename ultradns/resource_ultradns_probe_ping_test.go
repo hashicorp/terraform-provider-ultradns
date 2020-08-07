@@ -75,6 +75,13 @@ func TestAccUltradnsProbePing(t *testing.T) {
 					resource.TestCheckResourceAttr("ultradns_probe_ping.it", "ping_probe.0.limit.3257917790.fail", "4"),
 				),
 			},
+
+			{
+				ResourceName:      "ultradns_probe_ping.it",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+
 		},
 	})
 }

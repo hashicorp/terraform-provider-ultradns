@@ -2,10 +2,11 @@ package ultradns
 
 import (
 	"fmt"
-	"log"
 	"strings"
+	"errors"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	log "github.com/sirupsen/logrus"
 	"github.com/terra-farm/udnssdk"
 )
 
@@ -15,6 +16,10 @@ func resourceUltradnsProbePing() *schema.Resource {
 		Read:   resourceUltradnsProbePingRead,
 		Update: resourceUltradnsProbePingUpdate,
 		Delete: resourceUltradnsProbePingDelete,
+
+		Importer: &schema.ResourceImporter{
+			State: resourceUltradnsProbePingImport,
+		},
 
 		Schema: map[string]*schema.Schema{
 			// Key
@@ -79,7 +84,8 @@ func resourceUltradnsProbePingCreate(d *schema.ResourceData, meta interface{}) e
 
 	uri := resp.Header.Get("Location")
 	d.Set("uri", uri)
-	d.SetId((strings.Split(uri, "probes/"))[1])
+        id := fmt.Sprintf("%s:%s:%s",d.Get("name"),d.Get("zone"),strings.Split(uri,"probes/")[1])
+        d.SetId(id)
 	log.Printf("[INFO] ultradns_probe_ping.ping_id: %v", d.Id())
 
 	return resourceUltradnsProbePingRead(d, meta)
@@ -155,7 +161,11 @@ func makePingProbeResource(d *schema.ResourceData) (probeResource, error) {
 	p := probeResource{}
 	p.Zone = d.Get("zone").(string)
 	p.Name = d.Get("name").(string)
-	p.ID = d.Id()
+        p.ID = d.Id()
+        if len((strings.Split(string(d.Id()),":"))) > 2 {
+                p.ID = (strings.Split(string(d.Id()),":"))[2]
+        }
+
 	p.Interval = d.Get("interval").(string)
 	p.PoolRecord = d.Get("pool_record").(string)
 	p.Threshold = d.Get("threshold").(int)
@@ -195,7 +205,7 @@ func makePingProbeDetails(configured interface{}) *udnssdk.ProbeDetailsDTO {
 }
 
 func populateResourceDataFromPingProbe(p udnssdk.ProbeInfoDTO, d *schema.ResourceData) error {
-	d.SetId(p.ID)
+	d.SetId(d.Id())
 	d.Set("pool_record", p.PoolRecord)
 	d.Set("interval", p.Interval)
 	d.Set("agents", p.Agents)
@@ -216,4 +226,23 @@ func populateResourceDataFromPingProbe(p udnssdk.ProbeInfoDTO, d *schema.Resourc
 		return fmt.Errorf("ping_probe set failed: %v, from %#v", err, pp)
 	}
 	return nil
+}
+
+// State function to seperate id into appropriate name and zone
+func resourceUltradnsProbePingImport(
+        d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+        newId := strings.TrimSuffix(d.Id(), ".")
+        log.Infof("d.Id = %s",d.Id())
+        attributes := strings.Split(newId, ":")
+        if len(attributes) > 1 {
+                d.Set("zone", attributes[1])
+                d.Set("name", attributes[0])
+        } else {
+
+                return nil, errors.New("Wrong ID please provide proper ID in format name:zone:id ")
+
+        }
+        d.SetId(newId)
+        return []*schema.ResourceData{d}, nil
+
 }
