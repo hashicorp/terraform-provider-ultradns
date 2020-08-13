@@ -1,9 +1,8 @@
-0.1.2 (Unreleased)
+## 0.1.1 (Unreleased)
 - Upgrade plugin to terraform 0.12
 - Modified dependencies
 - Upgraded testcases
 
-## 0.1.1 (Unreleased)
 ## 0.1.0 (June 21, 2017)
 
 NOTES:
