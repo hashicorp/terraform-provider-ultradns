@@ -3,6 +3,7 @@ package ultradns
 import (
 	"fmt"
 	"strings"
+	"errors"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -16,6 +17,10 @@ func resourceUltradnsRdpool() *schema.Resource {
 		Read:   resourceUltradnsRdpoolRead,
 		Update: resourceUltradnsRdpoolUpdate,
 		Delete: resourceUltradnsRdpoolDelete,
+
+		Importer: &schema.ResourceImporter{
+			State: resourceUltradnsRdpoolImport,
+		},
 
 		Schema: map[string]*schema.Schema{
 			// Required
@@ -216,4 +221,20 @@ func newRRSetResourceFromRdpool(d *schema.ResourceData) (rRSetResource, error) {
 	r.Profile = rp
 
 	return r, nil
+}
+
+// State Function to seperate id into appropriate name and zone
+func resourceUltradnsRdpoolImport(
+	d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	newId := strings.TrimSuffix(d.Id(), ".")
+	attributes := strings.SplitN(newId, ":", 2)
+	if len(attributes) > 1 {
+		d.Set("zone", attributes[1])
+		d.Set("name", attributes[0])
+	} else {
+
+		return nil, errors.New("Wrong ID please provide proper ID in format name:zone ")
+
+	}
+	return []*schema.ResourceData{d}, nil
 }
