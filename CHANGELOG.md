@@ -3,8 +3,11 @@
 ENHANCEMENTS
 * Upgrade to Terraform 0.12. There should be no breaking changes from a practitioner's perspective.
 * resource/ultradns_tcpool: Removed unsupported keys `availableToServe`
-* resource/ultradns_probe_ping: Enhanced the `ID` parameter to make the resource workable after dependency upgrade
-* resource/ultradns_probe_http: Enhanced the `ID` parameter to make the resource workable after dependency upgrade
+
+BUG FIXES:
+* resource/ultradns_probe_ping: Resolved the errors and made the resource workable.
+* resource/ultradns_probe_http: Resolved the errors and made the resource workable.
+
 ## 0.1.0 (June 21, 2017)
 
 NOTES:
