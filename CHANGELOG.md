@@ -5,8 +5,8 @@ ENHANCEMENTS:
 * resource/ultradns_tcpool: Removed unsupported keys `availableToServe`
 
 BUG FIXES:
-* resource/ultradns_probe_ping: Resolved the errors and made the resource workable.
-* resource/ultradns_probe_http: Resolved the errors and made the resource workable.
+* resource/ultradns_probe_ping: Resolved compatibility errors for the specified resource. 
+* resource/ultradns_probe_http: Resolved compatibility errors for the specified resource.
 
 ## 0.1.0 (June 21, 2017)
 
