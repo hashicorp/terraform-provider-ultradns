@@ -1,6 +1,6 @@
 ## 0.1.1 (Unreleased)
 
-ENHANCEMENTS
+ENHANCEMENTS:
 * Upgrade to Terraform 0.12. There should be no breaking changes from a practitioner's perspective.
 * resource/ultradns_tcpool: Removed unsupported keys `availableToServe`
 
