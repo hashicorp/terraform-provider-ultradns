@@ -1,8 +1,8 @@
 ## 0.1.1 (Unreleased)
 
 ENHANCEMENTS
-* provider: Upgrade to Terraform 0.12. There should be no breaking changes from a practitioner's perspective.
-* Ensured that the advanced pool are working which were previously not working
+* Upgrade to Terraform 0.12. There should be no breaking changes from a practitioner's perspective.
+* resource/ultradns_tcpool: Enhanced resource which wasn't previously working in Terraform 0.11
 
 TESTING THE PLUGIN LOCALLY
 * Download the plugin binary from the release.
