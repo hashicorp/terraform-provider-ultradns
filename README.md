@@ -30,7 +30,6 @@ $ go mod vendor
 $ make fmt
 $ go build -o terraform-provider-ultradns
 ```
-
 Using the provider
 ----------------------
 ## Fill in for each provider
