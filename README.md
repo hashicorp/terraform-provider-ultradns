@@ -30,17 +30,9 @@ $ go mod vendor
 $ make fmt
 $ go build -o terraform-provider-ultradns
 ```
-
 Using the provider
 ----------------------
-- Download the provider binary provided in the release.
-- Next, perform the following
-```sh
-$ mv {downloaded_binary} terraform-provider-ultradns
-$ cp terraform-provider-ultradns ~/.terraform.d/plugins/
-```
-- Finally, initialize the plugin using `terraform init` command.
-
+## Fill in for each provider
 
 Developing the Provider
 ---------------------------
