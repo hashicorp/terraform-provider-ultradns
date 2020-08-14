@@ -7,9 +7,9 @@ ENHANCEMENTS
 TESTING THE PLUGIN LOCALLY
 * Download the plugin binary from the release.
 * Unzip the plugin binary
-``sh 
+```sh 
 $> unzip terraform-provider-ultradns_0.1.1_RC.zip
-``
+```
 * Rename the unzipped plugin to "terraform-provider-ultradns"
 ```sh
 $> mv terraform-provider-ultradns_0.1.1_RC terraform-provider-ultradns
