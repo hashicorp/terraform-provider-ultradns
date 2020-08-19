@@ -69,6 +69,8 @@ func TestAccUltradnsDirpool(t *testing.T) {
 			{
 				ResourceName:      "ultradns_dirpool.it",
 				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{"no_response"},
 			},
 		},
 	})
