@@ -1,13 +1,13 @@
 package ultradns
 
 import (
+	"errors"
 	"fmt"
 	"strings"
-	"errors"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/terra-farm/udnssdk"
 	log "github.com/sirupsen/logrus"
+	"github.com/terra-farm/udnssdk"
 )
 
 func resourceUltradnsTcpool() *schema.Resource {

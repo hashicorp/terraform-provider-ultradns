@@ -93,7 +93,6 @@ func TestAccUltradnsProbeHTTP(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-
 		},
 	})
 }

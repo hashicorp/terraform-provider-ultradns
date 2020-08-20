@@ -1,9 +1,9 @@
 package ultradns
 
 import (
+	"errors"
 	"fmt"
 	"strings"
-	"errors"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	log "github.com/sirupsen/logrus"
@@ -84,8 +84,8 @@ func resourceUltradnsProbePingCreate(d *schema.ResourceData, meta interface{}) e
 
 	uri := resp.Header.Get("Location")
 	d.Set("uri", uri)
-        id := fmt.Sprintf("%s:%s:%s",d.Get("name"),d.Get("zone"),strings.Split(uri,"probes/")[1])
-        d.SetId(id)
+	id := fmt.Sprintf("%s:%s:%s", d.Get("name"), d.Get("zone"), strings.Split(uri, "probes/")[1])
+	d.SetId(id)
 	log.Printf("[INFO] ultradns_probe_ping.ping_id: %v", d.Id())
 
 	return resourceUltradnsProbePingRead(d, meta)
@@ -161,10 +161,10 @@ func makePingProbeResource(d *schema.ResourceData) (probeResource, error) {
 	p := probeResource{}
 	p.Zone = d.Get("zone").(string)
 	p.Name = d.Get("name").(string)
-        p.ID = d.Id()
-        if len((strings.Split(string(d.Id()),":"))) > 2 {
-                p.ID = (strings.Split(string(d.Id()),":"))[2]
-        }
+	p.ID = d.Id()
+	if len((strings.Split(string(d.Id()), ":"))) > 2 {
+		p.ID = (strings.Split(string(d.Id()), ":"))[2]
+	}
 
 	p.Interval = d.Get("interval").(string)
 	p.PoolRecord = d.Get("pool_record").(string)
@@ -230,19 +230,19 @@ func populateResourceDataFromPingProbe(p udnssdk.ProbeInfoDTO, d *schema.Resourc
 
 // State function to seperate id into appropriate name and zone
 func resourceUltradnsProbePingImport(
-        d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-        newId := strings.TrimSuffix(d.Id(), ".")
-        log.Infof("d.Id = %s",d.Id())
-        attributes := strings.Split(newId, ":")
-        if len(attributes) > 1 {
-                d.Set("zone", attributes[1])
-                d.Set("name", attributes[0])
-        } else {
+	d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	newId := strings.TrimSuffix(d.Id(), ".")
+	log.Infof("d.Id = %s", d.Id())
+	attributes := strings.Split(newId, ":")
+	if len(attributes) > 1 {
+		d.Set("zone", attributes[1])
+		d.Set("name", attributes[0])
+	} else {
 
-                return nil, errors.New("Wrong ID please provide proper ID in format name:zone:id ")
+		return nil, errors.New("Wrong ID please provide proper ID in format name:zone:id ")
 
-        }
-        d.SetId(newId)
-        return []*schema.ResourceData{d}, nil
+	}
+	d.SetId(newId)
+	return []*schema.ResourceData{d}, nil
 
 }

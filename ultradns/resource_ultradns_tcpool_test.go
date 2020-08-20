@@ -96,7 +96,6 @@ func TestAccUltradnsTcpool(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-
 		},
 	})
 }

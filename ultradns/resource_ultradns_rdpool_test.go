@@ -43,7 +43,6 @@ func TestAccUltradnsRdpool(t *testing.T) {
 				ImportStateVerify: true,
 			},
 
-
 			{
 				Config: fmt.Sprintf(testCfgRdpoolMaximal, domain),
 				Check: resource.ComposeTestCheckFunc(
@@ -71,7 +70,6 @@ func TestAccUltradnsRdpool(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-
 		},
 	})
 }

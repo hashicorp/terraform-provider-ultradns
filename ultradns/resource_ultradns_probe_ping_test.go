@@ -81,7 +81,6 @@ func TestAccUltradnsProbePing(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-
 		},
 	})
 }

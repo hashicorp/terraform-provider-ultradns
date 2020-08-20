@@ -33,8 +33,8 @@ func TestAccUltradnsDirpool(t *testing.T) {
 					resource.TestCheckResourceAttr("ultradns_dirpool.it", "rdata.463398947.host", "10.1.0.1"),
 					resource.TestCheckResourceAttr("ultradns_dirpool.it", "rdata.463398947.all_non_configured", "true"),
 					// Generated
-					resource.TestCheckResourceAttr("ultradns_dirpool.it", "id",  fmt.Sprintf("test-dirpool-minimal:%s",domain)),
-					resource.TestCheckResourceAttr("ultradns_dirpool.it", "hostname", fmt.Sprintf("test-dirpool-minimal.%s.",domain)),
+					resource.TestCheckResourceAttr("ultradns_dirpool.it", "id", fmt.Sprintf("test-dirpool-minimal:%s", domain)),
+					resource.TestCheckResourceAttr("ultradns_dirpool.it", "hostname", fmt.Sprintf("test-dirpool-minimal.%s.", domain)),
 				),
 			},
 			{
@@ -61,16 +61,15 @@ func TestAccUltradnsDirpool(t *testing.T) {
 					resource.TestCheckResourceAttr("ultradns_dirpool.it", "no_response.0.geo_info.0.name", "nrGeo"),
 					resource.TestCheckResourceAttr("ultradns_dirpool.it", "no_response.0.ip_info.0.name", "nrIP"),
 					// Generated
-					resource.TestCheckResourceAttr("ultradns_dirpool.it", "id",  fmt.Sprintf("test-dirpool-maximal:%s",domain)),
-					resource.TestCheckResourceAttr("ultradns_dirpool.it", "hostname",  fmt.Sprintf("test-dirpool-maximal.%s.",domain)),
+					resource.TestCheckResourceAttr("ultradns_dirpool.it", "id", fmt.Sprintf("test-dirpool-maximal:%s", domain)),
+					resource.TestCheckResourceAttr("ultradns_dirpool.it", "hostname", fmt.Sprintf("test-dirpool-maximal.%s.", domain)),
 				),
 			},
-			
+
 			{
 				ResourceName:      "ultradns_dirpool.it",
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{"no_response"},
 			},
 		},
 	})

@@ -1,9 +1,9 @@
 package ultradns
 
 import (
+	"errors"
 	"fmt"
 	"strings"
-	"errors"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	log "github.com/sirupsen/logrus"
@@ -17,7 +17,7 @@ func resourceUltradnsProbeHTTP() *schema.Resource {
 		Update: resourceUltradnsProbeHTTPUpdate,
 		Delete: resourceUltradnsProbeHTTPDelete,
 		Importer: &schema.ResourceImporter{
-			State: resourceUltradnsProbeHTTPImport ,
+			State: resourceUltradnsProbeHTTPImport,
 		},
 		Schema: map[string]*schema.Schema{
 			// Key
@@ -141,7 +141,7 @@ func resourceUltradnsProbeHTTPCreate(d *schema.ResourceData, meta interface{}) e
 
 	uri := resp.Header.Get("Location")
 	d.Set("uri", uri)
-	id := fmt.Sprintf("%s:%s:%s",d.Get("name"),d.Get("zone"),strings.Split(uri,"probes/")[1])
+	id := fmt.Sprintf("%s:%s:%s", d.Get("name"), d.Get("zone"), strings.Split(uri, "probes/")[1])
 	d.SetId(id)
 	log.Infof("[INFO] ultradns_probe_http.http_id: %v", d.Id())
 
@@ -219,10 +219,10 @@ func makeHTTPProbeResource(d *schema.ResourceData) (probeResource, error) {
 	p.Zone = d.Get("zone").(string)
 	p.Name = d.Get("name").(string)
 	p.ID = d.Id()
-	if len((strings.Split(string(d.Id()),":"))) > 2 {
-		p.ID = (strings.Split(string(d.Id()),":"))[2]
+	if len((strings.Split(string(d.Id()), ":"))) > 2 {
+		p.ID = (strings.Split(string(d.Id()), ":"))[2]
 	}
-	
+
 	p.Interval = d.Get("interval").(string)
 	p.PoolRecord = d.Get("pool_record").(string)
 	p.Threshold = d.Get("threshold").(int)
@@ -329,7 +329,7 @@ func populateResourceDataFromHTTPProbe(p udnssdk.ProbeInfoDTO, d *schema.Resourc
 func resourceUltradnsProbeHTTPImport(
 	d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	newId := strings.TrimSuffix(d.Id(), ".")
-	log.Infof("d.Id = %s",d.Id())
+	log.Infof("d.Id = %s", d.Id())
 	attributes := strings.Split(newId, ":")
 	if len(attributes) > 1 {
 		d.Set("zone", attributes[1])
