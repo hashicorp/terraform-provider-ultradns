@@ -304,7 +304,6 @@ func resourceUltradnsDirpoolRead(d *schema.ResourceData, meta interface{}) error
 		}
 		return fmt.Errorf("resource not found: %v", err)
 	}
-	log.Infof("rrsets=%+v", rrsets)
 	r := rrsets[0]
 
 	return populateResourceFromDirpool(d, &r)
@@ -383,7 +382,6 @@ func makeDirpoolRRSetResource(d *schema.ResourceData) (rRSetResource, error) {
 	}
 
 	res.Profile = profile.RawProfile()
-	log.Infof("in makeDirpoolRRSetResource profile value =  %+v", res.Profile)
 	return res, nil
 }
 
@@ -439,7 +437,8 @@ func populateResourceFromDirpool(d *schema.ResourceData, r *udnssdk.RRSet) error
 
 	// Block created to set no_response
 
-	if (p.NoResponse.IPInfo != nil) && (p.NoResponse.GeoInfo != nil) {
+	if r.Profile["noResponse"] != nil {
+		//noResponse := r.Profile["noResponse"].(map[string]interface{})
 		var noResponseBlock map[string]interface{}
 		np, err := makeDirpoolRdataInfoAPI(r.Profile["noResponse"])
 		if err != nil {
@@ -448,8 +447,8 @@ func populateResourceFromDirpool(d *schema.ResourceData, r *udnssdk.RRSet) error
 		var ts []map[string]interface{}
 		t := map[string]interface{}{
 			"all_non_configured": np.AllNonConfigured,
-			"ip_info":            mapFromIPInfos(np.IPInfo),
 			"geo_info":           mapFromGeoInfos(np.GeoInfo),
+			"ip_info":            mapFromIPInfos(np.IPInfo),
 		}
 		ts = append(ts, t)
 		err = d.Set("no_response", ts)
@@ -546,7 +545,6 @@ func makeDirpoolRdataInfo(configured interface{}) (udnssdk.DPRDataInfo, error) {
 // makeGeoInfo converts a map[string]interface{} from an geo_info block
 // into an GeoInfo
 func makeGeoInfo(configured interface{}) (udnssdk.GeoInfo, error) {
-	log.Infof("In makeGeoInfo")
 	var res udnssdk.GeoInfo
 	c := configured.(map[string]interface{})
 	err := mapDecode(c, &res)

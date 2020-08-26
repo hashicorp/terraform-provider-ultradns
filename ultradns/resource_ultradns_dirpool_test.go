@@ -183,7 +183,7 @@ resource "ultradns_dirpool" "it" {
       name = "nrGeo"
 
       codes = [
-        "Z4",
+        "LU", "ES", "SJ", "JE", "NL", "HU", "FR", "GB", "IE", "MT", "IM", "BG", "LT", "MD", "GR", "IT", "BA", "PL", "BE", "UA", "BY", "IS", "PT", "LV", "FO", "AM", "CZ", "VA", "LI", "AT", "NO", "EE", "AX", "U5", "DE", "SE", "AL", "SM", "AD", "SI", "GG", "CH", "MK", "FI", "MC", "GI", "GE", "HR", "ME", "AZ", "RO", "SK", "DK", "RS"
       ]
     }
 
