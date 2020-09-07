@@ -2,12 +2,312 @@ package ultradns
 
 import (
 	"fmt"
+	"net/http"
 	"os"
+	"reflect"
 	"testing"
 
+	udnssdk "github.com/aliasgharmhowwala/ultradns-sdk-go"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/terra-farm/udnssdk"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	log "github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/assert"
 )
+
+type mockUltraDNSRecordRDPool struct {
+	client *udnssdk.Client
+}
+
+func (m *mockUltraDNSRecordRDPool) Create(k udnssdk.RRSetKey, rrset udnssdk.RRSet) (*http.Response, error) {
+	return nil, nil
+}
+
+func (m *mockUltraDNSRecordRDPool) Select(k udnssdk.RRSetKey) ([]udnssdk.RRSet, error) {
+
+
+	return []udnssdk.RRSet{{
+		OwnerName: "test-ultradns-provider.com.",
+		RRType:    "A",
+		RData:     []string{"10.0.0.1", "10.0.0.2", "10.0.0.3"},
+		TTL:       3600,
+	}}, nil
+
+}
+
+func (m *mockUltraDNSRecordRDPool) SelectWithOffset(k udnssdk.RRSetKey, offset int) ([]udnssdk.RRSet, udnssdk.ResultInfo, *http.Response, error) {
+	return nil, udnssdk.ResultInfo{}, nil, nil
+}
+
+func (m *mockUltraDNSRecordRDPool) Update(udnssdk.RRSetKey, udnssdk.RRSet) (*http.Response, error) {
+	return nil, nil
+}
+
+func (m *mockUltraDNSRecordRDPool) Delete(k udnssdk.RRSetKey) (*http.Response, error) {
+	return nil, nil
+}
+
+func (m *mockUltraDNSRecordRDPool) SelectWithOffsetWithLimit(k udnssdk.RRSetKey, offset int, limit int) (rrsets []udnssdk.RRSet, ResultInfo udnssdk.ResultInfo, resp *http.Response, err error) {
+	return []udnssdk.RRSet{}, udnssdk.ResultInfo{}, nil, nil
+}
+
+func setResourceRecordRDPool() (resourceRecord *schema.Resource) {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			// Required
+			"zone": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"rdata": {
+				Type:     schema.TypeSet,
+				Set:      schema.HashString,
+				Required: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			// Optional
+			"order": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "ROUND_ROBIN",
+				ValidateFunc: validation.StringInSlice([]string{
+					"ROUND_ROBIN",
+					"FIXED",
+					"RANDOM",
+				}, false),
+			},
+			"description": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringLenBetween(0, 255),
+			},
+			"ttl": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  3600,
+			},
+			// Computed
+			"hostname": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+		},
+	}
+
+}
+
+func compareResourceDataRDPool(t *testing.T, expected *schema.ResourceData, actual *schema.ResourceData) {
+	log.Infof("RData values : %+v", expected.Get("rdata"))
+	assert.Equal(t, expected.Get("zone"), actual.Get("zone"), true)
+	assert.Equal(t, expected.Get("ttl"), actual.Get("ttl"), true)
+	assert.Equal(t, expected.Get("type"), actual.Get("type"), true)
+	assert.Equal(t, expected.Get("name"), actual.Get("name"), true)
+	assert.Equal(t, expected.Get("order"), actual.Get("order"), true)
+	assert.Equal(t, expected.Get("description"), actual.Get("description"), true)
+	assert.Equal(t, expected.Get("rdata.654229907"), actual.Get("rdata.654229907"), true)
+	assert.Equal(t, expected.Get("rdata.3220672553"), actual.Get("rdata.3220672553"), true)
+	assert.Equal(t, expected.Get("rdata.3371212991"), actual.Get("rdata.3371212991"), true)
+
+}
+
+func TestUltradnsNewRRSetResourceRecordRDPool(t *testing.T) {
+	resourceRecordObj := setResourceRecordRDPool()
+	resourceData := resourceRecordObj.TestResourceData()
+	resourceData.Set("name", "test.provider.ultradns.net")
+	resourceData.Set("ttl", 3600)
+	resourceData.Set("rdata", []string{"10.0.0.2", "10.0.0.1", "10.0.0.3"})
+	resourceData.Set("zone", "test.provider.ultradns.net")
+	resourceData.Set("order", "ROUND_ROBIN")
+	resourceData.Set("description", "testing")
+
+	rdpoolProfile := udnssdk.RDPoolProfile{
+		Context:     "http://schemas.ultradns.com/RDPool.jsonschema",
+		Order:       "ROUND_ROBIN",
+		Description: "testing",
+	}
+
+	expected := rRSetResource{
+		Zone:      "test.provider.ultradns.net",
+		OwnerName: "test.provider.ultradns.net",
+		TTL:       3600,
+		RRType:    "A",
+		RData:     []string{"10.0.0.2", "10.0.0.3", "10.0.0.1"},
+		Profile:   rdpoolProfile.RawProfile(),
+	}
+
+	res, _ := newRRSetResourceFromRdpool(resourceData)
+	log.Infof("Actual: %+v", res)
+	log.Infof("Expected : %+v", expected)
+	assert.Equal(t, reflect.DeepEqual(expected, res), true)
+}
+
+func TestResourceUltradnsRDPoolCreate(t *testing.T) {
+	expectedResourceRecordObj := setResourceRecordRDPool()
+	expectedData := expectedResourceRecordObj.TestResourceData()
+	resourceRecordObject := setResourceRecordRDPool()
+	actualData := resourceRecordObject.TestResourceData()
+	mocked := mockUltraDNSRecordRDPool{}
+
+	client := &udnssdk.Client{
+		RRSets: &mocked,
+	}
+
+	actualData.Set("name", "test.provider.ultradns.net")
+	actualData.Set("ttl", "3600")
+	actualData.Set("rdata", []string{"10.0.0.2", "10.0.0.1", "10.0.0.3"})
+	actualData.Set("zone", "test.provider.ultradns.net")
+	actualData.Set("order", "ROUND_ROBIN")
+	actualData.Set("description", "testing")
+
+	expectedData.Set("name", "test.provider.ultradns.net")
+	expectedData.Set("ttl", "3600")
+	expectedData.Set("rdata", []string{"10.0.0.2", "10.0.0.1", "10.0.0.3"})
+	expectedData.Set("zone", "test.provider.ultradns.net")
+	expectedData.Set("order", "ROUND_ROBIN")
+	expectedData.Set("description", "testing")
+
+	resourceUltradnsRdpoolCreate(actualData, client)
+	compareResourceDataRDPool(t, expectedData, actualData)
+
+}
+
+//func TestResourceUltradnsRDPoolUpdate(t *testing.T) {
+//	expectedResourceRecordObj := setResourceRecordRDPool()
+//	expectedData := expectedResourceRecordObj.TestResourceData()
+//	resourceRecordObject := setResourceRecordRDPool()
+//	actualData := resourceRecordObject.TestResourceData()
+//	mocked := mockUltraDNSRecordRDPool{}
+//
+//	client := &udnssdk.Client{
+//		RRSets: &mocked,
+//	}
+//
+//	actualData.Set("name", "test.provider.ultradns.net")
+//	actualData.Set("ttl", "3600")
+//	actualData.Set("rdata", []string{"10.0.0.2", "10.0.0.1", "10.0.0.3"})
+//	actualData.Set("zone", "test.provider.ultradns.net")
+//	actualData.Set("order", "ROUND_ROBIN")
+//	actualData.Set("description", "testing")
+//
+//	expectedData.Set("name", "test.provider.ultradns.net")
+//	expectedData.Set("ttl", "3600")
+//	expectedData.Set("rdata", []string{"10.0.0.2", "10.0.0.1", "10.0.0.3"})
+//	expectedData.Set("zone", "test.provider.ultradns.net")
+//	expectedData.Set("order", "ROUND_ROBIN")
+//	expectedData.Set("description", "testing")
+//
+//	resourceUltradnsRdpoolUpdate(actualData, client)
+//	compareResourceDataRDPool(t, expectedData, actualData)
+//
+//}
+//
+//func TestResourceUltradnsRDPoolDelete(t *testing.T) {
+//	expectedResourceRecordObj := setResourceRecordRDPool()
+//	expectedData := expectedResourceRecordObj.TestResourceData()
+//	resourceRecordObject := setResourceRecordRDPool()
+//	actualData := resourceRecordObject.TestResourceData()
+//	mocked := mockUltraDNSRecordRDPool{}
+//
+//	client := &udnssdk.Client{
+//		RRSets: &mocked,
+//	}
+//
+//	actualData.Set("name", "test.provider.ultradns.net")
+//	actualData.Set("ttl", "3600")
+//	actualData.Set("rdata", []string{"10.0.0.2", "10.0.0.1", "10.0.0.3"})
+//	actualData.Set("zone", "test.provider.ultradns.net")
+//	actualData.Set("order", "ROUND_ROBIN")
+//	actualData.Set("description", "testing")
+//
+//	expectedData.Set("name", "test.provider.ultradns.net")
+//	expectedData.Set("ttl", "3600")
+//	expectedData.Set("rdata", []string{"10.0.0.2", "10.0.0.1", "10.0.0.3"})
+//	expectedData.Set("zone", "test.provider.ultradns.net")
+//	expectedData.Set("order", "ROUND_ROBIN")
+//	expectedData.Set("description", "testing")
+//
+//	resourceUltradnsRdpoolDelete(actualData, client)
+//	compareResourceDataRDPool(t, expectedData, actualData)
+//
+//}
+
+func TestResourceUltradnsRDPoolImport(t *testing.T) {
+	mocked := mockUltraDNSRecordRDPool{}
+	client := &udnssdk.Client{
+		RRSets: &mocked,
+	}
+	resourceRecordObj := setResourceRecordRDPool()
+	d := resourceRecordObj.TestResourceData()
+	d.SetId("test:test.provider.ultradns.net")
+	newRecordData, _ := resourceUltradnsRdpoolImport(d, client)
+	assert.Equal(t, newRecordData[0].Get("name"), "test", true)
+	assert.Equal(t, newRecordData[0].Get("zone"), "test.provider.ultradns.net", true)
+
+}
+
+//func TestPopulateResourceDataFromRRSetRDPool(t *testing.T) {
+//	resourceRecordObj := setResourceRecordRDPool()
+//	expectedResourceRecordObj := setResourceRecordRDPool()
+//	expectedData := expectedResourceRecordObj.TestResourceData()
+//
+//	expectedData.Set("ttl", "3600")
+//	expectedData.Set("name", "test.provider.ultradns.net")
+//	expectedData.Set("type", "A")
+//	expectedData.Set("rdata", []string{"10.0.0.2", "10.0.0.1", "10.0.0.3"})
+//	expectedData.Set("zone", "test.provider.ultradns.net")
+//	expectedData.Set("order", "ROUND_ROBIN")
+//	expectedData.Set("description", "testing")
+//
+//	d := resourceRecordObj.TestResourceData()
+//	d.Set("zone", "test.provider.ultradns.net")
+//
+//
+//	rRSetCase1 := udnssdk.RRSet{
+//		OwnerName: "test.",
+//		TTL:       3600,
+//		RRType:    "A",
+//		RData:     []string{"10.0.0.2", "10.0.0.1", "10.0.0.3"},
+//	}
+//
+//	rRSetCase2 := udnssdk.RRSet{
+//		OwnerName: "",
+//		TTL:       3600,
+//		RRType:    "A",
+//		RData:     []string{"10.0.0.2", "10.0.0.1", "10.0.0.3"},
+//	}
+//
+//	rRSetCase3 := udnssdk.RRSet{
+//		OwnerName: "test.provider.ultradns.net",
+//		TTL:       3600,
+//		RRType:    "A",
+//		RData:     []string{"10.0.0.2", "10.0.0.1", "10.0.0.3"},
+//	}
+//
+//	//Case 1 when the owner name has suffix dot
+//	log.Infof("Case 1 when the owner name has suffix dot")
+//	expectedData.Set("hostname", "test.")
+//	populateResourceDataFromRRSetRDPool(rRSetCase1, d)
+//	compareResourceData(t, expectedData, d)
+//
+//	//Case 2 When the owner name is empty
+//	log.Infof("Case 2 When the owner name is empty")
+//	expectedData.Set("name", "")
+//	populateResourceDataFromRRSetRDPool(rRSetCase2, d)
+//	compareResourceData(t, expectedData, d)
+//
+//	//Case 3 when we provide normal owner name
+//	log.Infof("Case 3 when we provide normal owner name")
+//	expectedData.Set("name", "test.provider.ultradns.net")
+//	populateResourceDataFromRRSetRDPool(rRSetCase3, d)
+//	compareResourceData(t, expectedData, d)
+//
+//}
 
 func TestAccUltradnsRdpool(t *testing.T) {
 	var record udnssdk.RRSet
@@ -94,3 +394,4 @@ resource "ultradns_rdpool" "it" {
   rdata       = ["10.6.1.1","10.6.1.2"]
 }
 `
+

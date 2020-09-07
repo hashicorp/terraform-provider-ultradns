@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"strings"
 
+	udnssdk "github.com/aliasgharmhowwala/ultradns-sdk-go"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	log "github.com/sirupsen/logrus"
-	"github.com/terra-farm/udnssdk"
 )
 
 func resourceUltradnsRdpool() *schema.Resource {
@@ -137,6 +137,8 @@ func resourceUltradnsRdpoolRead(d *schema.ResourceData, meta interface{}) error 
 	if r.Profile == nil {
 		return fmt.Errorf("RRSet.profile missing: invalid RDPool schema in: %#v", r)
 	}
+
+	log.Infof("Profile = %+v",r.Profile)
 	p, err := r.Profile.RDPoolProfile()
 	if err != nil {
 		return fmt.Errorf("RRSet.profile could not be unmarshalled: %v\n", err)
@@ -151,6 +153,7 @@ func resourceUltradnsRdpoolRead(d *schema.ResourceData, meta interface{}) error 
 	if err != nil {
 		return fmt.Errorf("rdata set failed: %#v", err)
 	}
+	
 	return nil
 }
 
@@ -226,8 +229,8 @@ func newRRSetResourceFromRdpool(d *schema.ResourceData) (rRSetResource, error) {
 // State Function to seperate id into appropriate name and zone
 func resourceUltradnsRdpoolImport(
 	d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	newId := strings.TrimSuffix(d.Id(), ".")
-	attributes := strings.SplitN(newId, ":", 2)
+	newID := strings.TrimSuffix(d.Id(), ".")
+	attributes := strings.SplitN(newID, ":", 2)
 	if len(attributes) > 1 {
 		d.Set("zone", attributes[1])
 		d.Set("name", attributes[0])
@@ -238,3 +241,4 @@ func resourceUltradnsRdpoolImport(
 	}
 	return []*schema.ResourceData{d}, nil
 }
+

@@ -9,10 +9,11 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	log "github.com/sirupsen/logrus"
-	"github.com/terra-farm/udnssdk"
+	"github.com/aliasgharmhowwala/ultradns-sdk-go"
 )
 
 func newRRSetResource(d *schema.ResourceData) (rRSetResource, error) {
+	log.Infof("Schema  = %+v",d)
 	r := rRSetResource{}
 
 	// TODO: return error if required attributes aren't ok
@@ -234,5 +235,7 @@ func resourceUltradnsRecordImport(
 		return nil, errors.New("Wrong ID please provide proper ID in format name:zone ")
 
 	}
+
+	log.Infof("Schema Resource: %+v",[]*schema.ResourceData{d})	
 	return []*schema.ResourceData{d}, nil
 }
