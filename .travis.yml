@@ -5,6 +5,7 @@ services:
 language: go
 go:
   - "1.14.x"
+  - tip
 
 install:
 # This script is used by the Travis build to install a cookie for
@@ -20,7 +21,7 @@ script:
 - make test
 - make vet
 - make website-test
-- go test -race -coverprofile=coverage.txt -covermode=atomic
+- go test -timeout=30s -parallel=4 terraform-provider-ultradns terraform-provider-ultradns/ultradns -coverprofile=coverage.txt -covermode=atomic
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
