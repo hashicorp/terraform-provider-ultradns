@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-	"github.com/terra-farm/udnssdk"
+	"github.com/aliasgharmhowwala/ultradns-sdk-go"
 )
 
 func TestAccUltradnsDirpool(t *testing.T) {
@@ -27,11 +27,11 @@ func TestAccUltradnsDirpool(t *testing.T) {
 					resource.TestCheckResourceAttr("ultradns_dirpool.it", "zone", domain),
 					resource.TestCheckResourceAttr("ultradns_dirpool.it", "name", "test-dirpool-minimal"),
 					resource.TestCheckResourceAttr("ultradns_dirpool.it", "type", "A"),
-					resource.TestCheckResourceAttr("ultradns_dirpool.it", "ttl", "300"),
 					resource.TestCheckResourceAttr("ultradns_dirpool.it", "description", "Minimal directional pool"),
 					// hashRdatas(): 10.1.0.1 -> 463398947
 					resource.TestCheckResourceAttr("ultradns_dirpool.it", "rdata.463398947.host", "10.1.0.1"),
 					resource.TestCheckResourceAttr("ultradns_dirpool.it", "rdata.463398947.all_non_configured", "true"),
+					resource.TestCheckResourceAttr("ultradns_dirpool.it", "rdata.463398947.ttl", "300"),
 					// Generated
 					resource.TestCheckResourceAttr("ultradns_dirpool.it", "id", fmt.Sprintf("test-dirpool-minimal:%s", domain)),
 					resource.TestCheckResourceAttr("ultradns_dirpool.it", "hostname", fmt.Sprintf("test-dirpool-minimal.%s.", domain)),
@@ -45,16 +45,19 @@ func TestAccUltradnsDirpool(t *testing.T) {
 					resource.TestCheckResourceAttr("ultradns_dirpool.it", "zone", domain),
 					resource.TestCheckResourceAttr("ultradns_dirpool.it", "name", "test-dirpool-maximal"),
 					resource.TestCheckResourceAttr("ultradns_dirpool.it", "type", "A"),
-					resource.TestCheckResourceAttr("ultradns_dirpool.it", "ttl", "300"),
 					resource.TestCheckResourceAttr("ultradns_dirpool.it", "description", "Description of pool"),
 					resource.TestCheckResourceAttr("ultradns_dirpool.it", "conflict_resolve", "GEO"),
 
 					// hashRdatas(): 10.1.1.1 -> 442270228
 					resource.TestCheckResourceAttr("ultradns_dirpool.it", "rdata.442270228.host", "10.1.1.1"),
 					resource.TestCheckResourceAttr("ultradns_dirpool.it", "rdata.442270228.all_non_configured", "true"),
+                                        resource.TestCheckResourceAttr("ultradns_dirpool.it", "rdata.442270228.ttl", "300"),
+
 					// hashRdatas(): 10.1.1.2 -> 2203440046
 					resource.TestCheckResourceAttr("ultradns_dirpool.it", "rdata.2203440046.host", "10.1.1.2"),
 					resource.TestCheckResourceAttr("ultradns_dirpool.it", "rdata.2203440046.geo_info.0.name", "North America"),
+                                        resource.TestCheckResourceAttr("ultradns_dirpool.it", "rdata.2203440046.ttl", "300"),
+
 					// hashRdatas(): 10.1.1.3 -> 4099072824
 					resource.TestCheckResourceAttr("ultradns_dirpool.it", "rdata.4099072824.host", "10.1.1.3"),
 					resource.TestCheckResourceAttr("ultradns_dirpool.it", "rdata.4099072824.ip_info.0.name", "some Ips"),
@@ -104,10 +107,10 @@ resource "ultradns_dirpool" "it" {
   zone        = "%s"
   name        = "test-dirpool-minimal"
   type        = "A"
-  ttl         = 300
   description = "Minimal directional pool"
 
   rdata {
+    ttl         = 300
     host = "10.1.0.1"
     all_non_configured = true
   }
@@ -119,18 +122,19 @@ resource "ultradns_dirpool" "it" {
   zone        = "%s"
   name        = "test-dirpool-maximal"
   type        = "A"
-  ttl         = 300
   description = "Description of pool"
 
   conflict_resolve = "GEO"
 
   rdata {
+    ttl         = 300
     host               = "10.1.1.1"
     all_non_configured = true
   }
 
   rdata {
     host = "10.1.1.2"
+    ttl         = 300
 
     geo_info {
       name = "North America"

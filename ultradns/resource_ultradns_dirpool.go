@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/mitchellh/mapstructure"
 	log "github.com/sirupsen/logrus"
-	"github.com/terra-farm/udnssdk"
+	"github.com/aliasgharmhowwala/ultradns-sdk-go"
 )
 
 func resourceUltradnsDirpool() *schema.Resource {
@@ -69,6 +69,12 @@ func resourceUltradnsDirpool() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 						},
+						"ttl": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Default:  3600,
+						},
+
 						"all_non_configured": {
 							Type:     schema.TypeBool,
 							Optional: true,
@@ -145,12 +151,6 @@ func resourceUltradnsDirpool() *schema.Resource {
 						},
 					},
 				},
-			},
-			// Optional
-			"ttl": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  3600,
 			},
 			"conflict_resolve": {
 				Type:     schema.TypeString,
@@ -353,7 +353,6 @@ func makeDirpoolRRSetResource(d *schema.ResourceData) (rRSetResource, error) {
 		RRType:    d.Get("type").(string),
 		Zone:      d.Get("zone").(string),
 		OwnerName: d.Get("name").(string),
-		TTL:       d.Get("ttl").(int),
 		RData:     unzipRdataHosts(rDataRaw),
 	}
 
@@ -600,6 +599,7 @@ func zipDirpoolRData(rds []string, rdis []udnssdk.DPRDataInfo) []map[string]inte
 	for i, rdi := range rdis {
 		r := map[string]interface{}{
 			"host":               rds[i],
+			"ttl" :               rdi.TTL,
 			"all_non_configured": rdi.AllNonConfigured,
 			"ip_info":            mapFromIPInfos(rdi.IPInfo),
 			"geo_info":           mapFromGeoInfos(rdi.GeoInfo),
