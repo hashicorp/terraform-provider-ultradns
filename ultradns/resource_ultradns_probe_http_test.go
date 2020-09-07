@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/terra-farm/udnssdk"
+	"github.com/aliasgharmhowwala/ultradns-sdk-go"
 )
 
 func TestAccUltradnsProbeHTTP(t *testing.T) {

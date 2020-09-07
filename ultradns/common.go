@@ -6,7 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/terra-farm/udnssdk"
+	"github.com/aliasgharmhowwala/ultradns-sdk-go"
 )
 
 // Conversion helper functions

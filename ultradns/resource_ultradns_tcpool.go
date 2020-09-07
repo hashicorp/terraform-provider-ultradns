@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	log "github.com/sirupsen/logrus"
-	"github.com/terra-farm/udnssdk"
+	"github.com/aliasgharmhowwala/ultradns-sdk-go"
 )
 
 func resourceUltradnsTcpool() *schema.Resource {
