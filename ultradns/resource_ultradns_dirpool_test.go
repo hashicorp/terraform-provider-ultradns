@@ -918,23 +918,17 @@ func TestResourceUltradnsDirPoolFailCases(t *testing.T){
 	actualData.Set("name", "test.provider.ultradns.net")
 	actualData.Set("zone", "test.provider.ultradns.net")
 	actualData.Set("type", "A")
-	err := actualData.Set("conflict_resolve", "abcdefghi")
+	actualData.Set("conflict_resolve", "abcdefghi")
 	actualData.Set("description", "testing")
 	actualData.Set("hostname", "test.provider.ultradns.net.test.provider.ultradns.net")
-	assert.NotNil(t,err,true)
-
-	err = actualData.Set("description", "xWVQfy7AtNcCATHLSNppqs2SjImlnYOBi2UVp9X5XlEzoRCkmttmb2tD2JZI7AW4cySeS9aOvSFOj0oZM8m78cExZtnIO8dTeilKp6iObO1ipB2g4966c630QBxsHotCqEjrQ8Ky70vw3hd6mL16qe9nuHr8BDxJ4LYm5OyyiMT85NSuA0PykDl1hJhL5t6pCuPYqQQ8tXuLBqArJBZGuoPIPQHHLf33aSASRuVPkKZ8wqgJFLz4zgJ8mUEtIc9TmBR")
-	assert.NotNil(t,err,true)
+	actualData.Set("description", "xWVQfy7AtNcCATHLSNppqs2SjImlnYOBi2UVp9X5XlEzoRCkmttmb2tD2JZI7AW4cySeS9aOvSFOj0oZM8m78cExZtnIO8dTeilKp6iObO1ipB2g4966c630QBxsHotCqEjrQ8Ky70vw3hd6mL16qe9nuHr8BDxJ4LYm5OyyiMT85NSuA0PykDl1hJhL5t6pCuPYqQQ8tXuLBqArJBZGuoPIPQHHLf33aSASRuVPkKZ8wqgJFLz4zgJ8mUEtIc9TmBRsddadsdadasdsdasdsDasdasdaDADADwadaDAWDASDADSDDADDWDAWDASDWADDADWADWADAWDW")
 
 	mocked := mockUltraDNSRecordRDPool{}
 	client := &udnssdk.Client{
 		RRSets: &mocked,
 	}
-	resourceRecordObj := setResourceRecordDirPool()
-	d := resourceRecordObj.TestResourceData()
-	d.SetId("test:test.provider.ultradns.net")
-	err = resourceUltradnsDirpoolCreate(d, client)
-
+	err := resourceUltradnsDirpoolCreate(actualData, client)
+	log.Infof("Error : %+v",err)
 	assert.NotNil(t,err,true)
 
 }

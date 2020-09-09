@@ -217,6 +217,7 @@ func populateResourceDataFromPingProbe(p udnssdk.ProbeInfoDTO, d *schema.Resourc
 	d.Set("threshold", p.Threshold)
 
 	pd, err := p.Details.PingProbeDetails()
+	log.Infof("%#v Details", p)
 	log.Infof("%+v limits", pd.Limits)
 	if err != nil {
 		return fmt.Errorf("ProbeInfo.details could not be unmarshalled: %v, Details: %#v", err, p.Details)
