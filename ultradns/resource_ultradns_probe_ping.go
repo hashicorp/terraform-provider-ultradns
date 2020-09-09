@@ -180,6 +180,7 @@ func makePingProbeResource(d *schema.ResourceData) (probeResource, error) {
 			return p, fmt.Errorf("ping_probe: only 0 or 1 blocks alowed, got: %#v", len(pps))
 		}
 		p.Details = makePingProbeDetails(pps[0])
+		log.Infof("%+v p.Details",p.Details.Detail)
 	}
 
 	return p, nil
@@ -188,11 +189,14 @@ func makePingProbeResource(d *schema.ResourceData) (probeResource, error) {
 func makePingProbeDetails(configured interface{}) *udnssdk.ProbeDetailsDTO {
 	data := configured.(map[string]interface{})
 	// Convert limits from flattened set format to mapping.
+	log.Infof("%+v limit",data["limit"].(*schema.Set).List())
 	ls := make(map[string]udnssdk.ProbeDetailsLimitDTO)
 	for _, limit := range data["limit"].(*schema.Set).List() {
 		l := limit.(map[string]interface{})
+		log.Infof("%+v limit1",l)
 		name := l["name"].(string)
 		ls[name] = *makeProbeDetailsLimit(l)
+		log.Infof("%+v ls:",ls)
 	}
 	res := udnssdk.ProbeDetailsDTO{
 		Detail: udnssdk.PingProbeDetailsDTO{
@@ -201,6 +205,7 @@ func makePingProbeDetails(configured interface{}) *udnssdk.ProbeDetailsDTO {
 			Packets:    data["packets"].(int),
 		},
 	}
+	log.Infof("%+v res:",res)
 	return &res
 }
 
@@ -212,6 +217,7 @@ func populateResourceDataFromPingProbe(p udnssdk.ProbeInfoDTO, d *schema.Resourc
 	d.Set("threshold", p.Threshold)
 
 	pd, err := p.Details.PingProbeDetails()
+	log.Infof("%+v limits", pd.Limits)
 	if err != nil {
 		return fmt.Errorf("ProbeInfo.details could not be unmarshalled: %v, Details: %#v", err, p.Details)
 	}
@@ -220,6 +226,8 @@ func populateResourceDataFromPingProbe(p udnssdk.ProbeInfoDTO, d *schema.Resourc
 		"packet_size": pd.PacketSize,
 		"limit":       makeSetFromLimits(pd.Limits),
 	}
+	log.Infof("pp: %+v", pp)
+
 
 	err = d.Set("ping_probe", []map[string]interface{}{pp})
 	if err != nil {
