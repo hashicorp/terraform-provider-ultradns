@@ -549,6 +549,18 @@ func TestPopulateResourceFromDirpool(t *testing.T) {
 
 	populateResourceFromDirpool(resourceData, rrsetResource)
 	compareDirPoolResources(t, expectedResourceData, resourceData)
+	
+	//case 1  when  ownername is empty
+	rrsetResource.OwnerName = ""
+	expectedResourceData.Set("hostname", "test.provider.ultradns.net")
+	populateResourceFromDirpool(resourceData, rrsetResource)
+	compareDirPoolResources(t, expectedResourceData, resourceData)
+
+	//case 2 when ownername has prefix .
+	rrsetResource.OwnerName = "abc."
+	expectedResourceData.Set("hostname", "abc.")
+	populateResourceFromDirpool(resourceData, rrsetResource)
+	compareDirPoolResources(t, expectedResourceData, resourceData)
 }
 
 func TestResourceUltradnsDirPoolCreate(t *testing.T) {
@@ -933,6 +945,211 @@ func TestResourceUltradnsDirPoolFailCases(t *testing.T){
 
 }
 
+
+func TestMakeDirpoolRRSetResourceFailCases(t *testing.T) {
+
+	resourceRecordObj := setResourceRecordDirPool()
+	resourceData := resourceRecordObj.TestResourceData()
+
+	rrsetDTO := make([]map[string]interface{}, 1)
+	noResponseDTO := make([]map[string]interface{}, 1)
+
+	data := []byte(`
+		[{
+				"host": "10.1.1.2",
+				"ttl": 300,
+				"geo_info": [{
+						"name": "North America",
+						"codes": [
+								"US"
+						]
+				}],
+				"ip_info": [{
+						"name": "rdataIpInfo",
+						"ips": [{
+								"address": "200.212.1.1"
+						}]
+				}]
+		}]
+		`)
+
+	//Case 1 when there is more than one no_response block
+	noResponseData := []byte(`
+		[{
+		"geo_info": [{
+			"name": "america",
+			"codes": [
+				"EUR"
+			]
+		}],
+		"ip_info": [{
+
+			"name": "nrIpInfo",
+			"ips": [{
+				"address": "200.20.0.1"
+			}]
+		}]
+	},
+	{
+		"geo_info": [{
+			"name": "america",
+			"codes": [
+				"EUR"
+			]
+		}],
+		"ip_info": [{
+
+			"name": "nrIpInfo",
+			"ips": [{
+				"address": "200.20.0.1"
+			}]
+		}]
+	}]
+		`)
+
+	err := json.Unmarshal(noResponseData, &noResponseDTO)
+	if err != nil {
+		log.Println(err)
+	}
+
+	err = json.Unmarshal(data, &rrsetDTO)
+	if err != nil {
+		log.Println(err)
+	}
+
+	resourceData.Set("name", "test.provider.ultradns.net")
+	resourceData.Set("rdata", rrsetDTO)
+	resourceData.Set("no_response", noResponseDTO)
+	resourceData.Set("zone", "test.provider.ultradns.net")
+	resourceData.Set("type", "A")
+	resourceData.Set("conflict_resolve", "GEO")
+	resourceData.Set("description", "testing")
+
+	_, err1 := makeDirpoolRRSetResource(resourceData)
+	log.Errorf("Error %+v", err1)
+	assert.NotNil(t, err1, true)
+
+	// Case2 when there is error in no_response block
+	noResponseData = []byte(`
+		[{
+				"geo_info": [{
+					"name": "america",
+					"codes": [
+						"EUR"
+					]
+				},
+				{
+					"name": "america",
+					"codes": [
+						"EUR"
+					]
+				}],
+				"ip_info": [{
+						"name": "nrIpInfo",
+						"ips": [{
+								"address": "23"
+					},
+				{
+						"name": "nrIpInfo",
+						"ips": [{
+								"address": "23"
+					}]
+				}]
+		}]`)
+
+	err = json.Unmarshal(noResponseData, &noResponseDTO)
+	if err != nil {
+		log.Println(err)
+	}
+	resourceData.Set("no_response", noResponseDTO)
+	_, noResponseError := makeDirpoolRRSetResource(resourceData)
+	log.Errorf("Error %+v", noResponseError)
+	assert.NotNil(t, noResponseError, true)
+
+}
+
+func TestPopulateResourceFromDirpoolFailCase(t *testing.T) {
+
+	resourceRecordObj := setResourceRecordDirPool()
+	resourceData := resourceRecordObj.TestResourceData()
+	expectedResourceRecordObj := setResourceRecordDirPool()
+	expectedResourceData := expectedResourceRecordObj.TestResourceData()
+	rrsetResource := &udnssdk.RRSet{
+		OwnerName: "test.provider.ultradns.net",
+		RRType:    "A",
+		RData: []string{
+			"10.1.1.2",
+		},
+		TTL: 0,
+	}
+
+	rrsetDTO := make([]map[string]interface{}, 1)
+	noResponseDTO := make([]map[string]interface{}, 1)
+	data := []byte(`
+		[{
+				"host": "10.1.1.2",
+				"ttl": 300,
+				"geo_info": [{
+						"name": "North America",
+						"codes": [
+								"US"
+						]
+				}],
+				"ip_info": [{
+						"name": "rdataIpInfo",
+						"ips": [{
+								"address": "200.212.1.1"
+						}]
+				}]
+		}]
+				`)
+
+	noResponseData := []byte(`
+		[{
+				"geo_info": [{
+						"name": "america",
+						"codes": [
+								"EUR"
+						]
+				}],
+				"ip_info": [{
+						"name": "nrIpInfo",
+						"ips": [{
+								"address": "200.20.0.1"
+						}]
+				}]
+		}]
+				`)
+
+	err := json.Unmarshal(noResponseData, &noResponseDTO)
+	if err != nil {
+		log.Println(err)
+	}
+
+	err = json.Unmarshal(data, &rrsetDTO)
+	if err != nil {
+		log.Println(err)
+	}
+
+	expectedResourceData.Set("name", "test.provider.ultradns.net")
+	expectedResourceData.Set("rdata", rrsetDTO)
+	err = expectedResourceData.Set("no_response", noResponseDTO)
+	expectedResourceData.Set("zone", "test.provider.ultradns.net")
+	expectedResourceData.Set("type", "A")
+	expectedResourceData.Set("conflict_resolve", "GEO")
+	expectedResourceData.Set("description", "testing")
+	expectedResourceData.Set("hostname", "test.provider.ultradns.net.test.provider.ultradns.net")
+
+	resourceData.Set("name", "test.provider.ultradns.net")
+	resourceData.Set("zone", "test.provider.ultradns.net")
+	resourceData.Set("conflict_resolve", "GEO")
+
+	//Case when no profile parameter is passed in DTO  rrsetResource
+	popError := populateResourceFromDirpool(resourceData, rrsetResource)
+	assert.NotNil(t, popError, true)
+
+}
+
 func TestAccUltradnsDirpool(t *testing.T) {
 	var record udnssdk.RRSet
 	domain, _ := os.LookupEnv("ULTRADNS_DOMAIN")
@@ -1125,3 +1342,4 @@ resource "ultradns_dirpool" "it" {
   }
 }
 `
+
