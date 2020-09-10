@@ -121,7 +121,6 @@ func schemaHTTPProbes() *schema.Resource {
 	}
 }
 
-
 func compareResourcesDataProbeHTTP(t *testing.T, actual *schema.ResourceData, expected *schema.ResourceData) {
 	assert.Equal(t, expected.Get("name"), actual.Get("name"), true)
 	assert.Equal(t, expected.Get("zone"), actual.Get("zone"), true)
@@ -132,8 +131,8 @@ func compareResourcesDataProbeHTTP(t *testing.T, actual *schema.ResourceData, ex
 	assert.Equal(t, expected.Get("agents.2144410488"), actual.Get("agents.2144410488"), true)
 	assert.Equal(t, expected.Get("agents.4091180299"), actual.Get("agents.4091180299"), true)
 	assert.Equal(t, expected.Get("http_probe.0.total_limits"), actual.Get("http_probe.0.total_limits"), true)
-	assert.Equal(t, expected.Get("http_probe.0.transaction.0.follow_redirects"), actual.Get("http_probe.0.transaction.0.follow_redirects"),true)
-	assert.Equal(t, expected.Get("http_probe.0.transaction.0.limit.1959786783"), actual.Get("http_probe.0.transaction.0.limit.1959786783"),true)
+	assert.Equal(t, expected.Get("http_probe.0.transaction.0.follow_redirects"), actual.Get("http_probe.0.transaction.0.follow_redirects"), true)
+	assert.Equal(t, expected.Get("http_probe.0.transaction.0.limit.1959786783"), actual.Get("http_probe.0.transaction.0.limit.1959786783"), true)
 
 }
 
@@ -245,17 +244,17 @@ func TestMakeHTTPProbeDetails(t *testing.T) {
 	HttpDetail := &udnssdk.ProbeDetailsDTO{
 		Detail: udnssdk.HTTPProbeDetailsDTO{
 			Transactions: []udnssdk.Transaction{{
-					Method:          "POST",
-					URL:             "http://www.google.com/",
-					TransmittedData: "{}",
-					FollowRedirects: true,
-					Limits: map[string]udnssdk.ProbeDetailsLimitDTO{
-							"connect": udnssdk.ProbeDetailsLimitDTO{
-								Warning:  10,
-								Critical: 11,
-								Fail:     12,
-							},
+				Method:          "POST",
+				URL:             "http://www.google.com/",
+				TransmittedData: "{}",
+				FollowRedirects: true,
+				Limits: map[string]udnssdk.ProbeDetailsLimitDTO{
+					"connect": udnssdk.ProbeDetailsLimitDTO{
+						Warning:  10,
+						Critical: 11,
+						Fail:     12,
 					},
+				},
 			}},
 			TotalLimits: &udnssdk.ProbeDetailsLimitDTO{
 				Warning:  13,
@@ -283,7 +282,7 @@ func TestPopulateResourceDataFromHTTPProbe(t *testing.T) {
 	err := json.Unmarshal(expectedData, &expectedResource)
 
 	if err != nil {
-			log.Println(err)
+		log.Println(err)
 	}
 
 	HttpProbeDTO := make([]map[string]interface{}, 1)
@@ -329,22 +328,22 @@ func TestPopulateResourceDataFromHTTPProbe(t *testing.T) {
 	compareResourcesDataProbeHTTP(t, resourceData, expectedResourceData)
 }
 
-func TestRresourceUltradnsProbePingImport(t *testing.T){
-	 resourceRecordObj := setResourceRecordHTTPProbe()
-	 d := resourceRecordObj.TestResourceData()
-	 d.SetId("test:test.provider.ultradns.net:0608485259D5AC79")
-	 newRecordData, _ := resourceUltradnsProbeHTTPImport(d, udnssdk.Client{})
-	 assert.Equal(t, newRecordData[0].Get("name"), "test", true)
-	 assert.Equal(t, newRecordData[0].Get("zone"), "test.provider.ultradns.net", true)
+func TestRresourceUltradnsProbePingImport(t *testing.T) {
+	resourceRecordObj := setResourceRecordHTTPProbe()
+	d := resourceRecordObj.TestResourceData()
+	d.SetId("test:test.provider.ultradns.net:0608485259D5AC79")
+	newRecordData, _ := resourceUltradnsProbeHTTPImport(d, udnssdk.Client{})
+	assert.Equal(t, newRecordData[0].Get("name"), "test", true)
+	assert.Equal(t, newRecordData[0].Get("zone"), "test.provider.ultradns.net", true)
 }
 
-func TestResourceUltradnsProbeHTTPImportFailCase(t *testing.T){
-        resourceRecordObj := setResourceRecordPingProbe()
-        d := resourceRecordObj.TestResourceData()
-        d.SetId("test.test.provider.ultradns.net.0608485259D5AC79")
-        _, err := resourceUltradnsProbeHTTPImport(d, udnssdk.Client{})
-	log.Errorf("ERROR: %+v",err)
-        assert.NotNil(t,err, true)
+func TestResourceUltradnsProbeHTTPImportFailCase(t *testing.T) {
+	resourceRecordObj := setResourceRecordPingProbe()
+	d := resourceRecordObj.TestResourceData()
+	d.SetId("test.test.provider.ultradns.net.0608485259D5AC79")
+	_, err := resourceUltradnsProbeHTTPImport(d, udnssdk.Client{})
+	log.Errorf("ERROR: %+v", err)
+	assert.NotNil(t, err, true)
 }
 
 func TestAccUltradnsProbeHTTP(t *testing.T) {
@@ -569,4 +568,3 @@ resource "ultradns_probe_http" "it" {
   depends_on = ["ultradns_tcpool.test-probe-http-maximal"]
 }
 `
-

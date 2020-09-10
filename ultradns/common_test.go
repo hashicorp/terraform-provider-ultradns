@@ -3,9 +3,9 @@ package ultradns
 import (
 	"fmt"
 
+	"github.com/aliasgharmhowwala/ultradns-sdk-go"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-	"github.com/aliasgharmhowwala/ultradns-sdk-go"
 )
 
 func testAccRdpoolCheckDestroy(s *terraform.State) error {

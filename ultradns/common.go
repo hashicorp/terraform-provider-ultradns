@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/aliasgharmhowwala/ultradns-sdk-go"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/aliasgharmhowwala/ultradns-sdk-go"
 )
 
 // Conversion helper functions

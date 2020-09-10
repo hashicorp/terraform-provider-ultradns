@@ -138,7 +138,7 @@ func resourceUltradnsRdpoolRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("RRSet.profile missing: invalid RDPool schema in: %#v", r)
 	}
 
-	log.Infof("Profile = %+v",r.Profile)
+	log.Infof("Profile = %+v", r.Profile)
 	p, err := r.Profile.RDPoolProfile()
 	if err != nil {
 		return fmt.Errorf("RRSet.profile could not be unmarshalled: %v\n", err)
@@ -153,7 +153,7 @@ func resourceUltradnsRdpoolRead(d *schema.ResourceData, meta interface{}) error 
 	if err != nil {
 		return fmt.Errorf("rdata set failed: %#v", err)
 	}
-	
+
 	return nil
 }
 
@@ -241,4 +241,3 @@ func resourceUltradnsRdpoolImport(
 	}
 	return []*schema.ResourceData{d}, nil
 }
-

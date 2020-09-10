@@ -549,7 +549,7 @@ func TestPopulateResourceFromDirpool(t *testing.T) {
 
 	populateResourceFromDirpool(resourceData, rrsetResource)
 	compareDirPoolResources(t, expectedResourceData, resourceData)
-	
+
 	//case 1  when  ownername is empty
 	rrsetResource.OwnerName = ""
 	expectedResourceData.Set("hostname", "test.provider.ultradns.net")
@@ -922,7 +922,7 @@ func TestResourceUltradnsDirPoolImportFailCase(t *testing.T) {
 
 }
 
-func TestResourceUltradnsDirPoolFailCases(t *testing.T){
+func TestResourceUltradnsDirPoolFailCases(t *testing.T) {
 
 	resourceRecordObject := setResourceRecordDirPool()
 	actualData := resourceRecordObject.TestResourceData()
@@ -940,11 +940,10 @@ func TestResourceUltradnsDirPoolFailCases(t *testing.T){
 		RRSets: &mocked,
 	}
 	err := resourceUltradnsDirpoolCreate(actualData, client)
-	log.Infof("Error : %+v",err)
-	assert.NotNil(t,err,true)
+	log.Infof("Error : %+v", err)
+	assert.NotNil(t, err, true)
 
 }
-
 
 func TestMakeDirpoolRRSetResourceFailCases(t *testing.T) {
 
@@ -1342,4 +1341,3 @@ resource "ultradns_dirpool" "it" {
   }
 }
 `
-
