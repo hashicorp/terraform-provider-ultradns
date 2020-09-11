@@ -1,3 +1,20 @@
+## 0.2.0 (Unreleased)
+
+ENHANCEMENTS:
+* Added feature for Terraform Import in all of the resources. There should be no breaking changes from a practitioner's perspective. ([#16](https://github.com/terraform-providers/terraform-provider-ultradns/issues/16))
+* Added Unit Testcases in all the resources which weren't present before.
+* Changed the delimiter in resource ID generator from `.` to `:`
+* It is now compatible with latest ultradns-sdk-go plugin.
+* Enhanced ".travis.yml" file to support code coverage.
+* Updated "README" file to support current changes.
+* Updated "GNUMake" file for code coverage and testing regarding changes.
+
+BUG FIXES:
+* resource/ultradns_rdpool: Resolved the acceptance test which was failing due to unsupported fields.
+* resource/ultradns_dirpool: Resolved the acceptance failing due to no `TTL` field in DirPoolProfile DTO.
+* provider: Removed static "BASEURL" used while running acceptance test.
+* Added "domain" variable in acceptance tests of all resources to use custom domains.
+
 ## 0.1.1 (Unreleased)
 
 ENHANCEMENTS:
