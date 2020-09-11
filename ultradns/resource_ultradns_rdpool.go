@@ -119,7 +119,11 @@ func resourceUltradnsRdpoolRead(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	r := rrsets[0]
+	return populateResourcesFromRDPool(r, d)
 
+}
+
+func populateResourcesFromRDPool(r udnssdk.RRSet, d *schema.ResourceData) error {
 	zone := d.Get("zone")
 
 	// hostname
