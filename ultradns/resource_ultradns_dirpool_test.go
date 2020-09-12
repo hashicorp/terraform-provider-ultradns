@@ -1309,6 +1309,68 @@ func TestMakeDirpoolRdataInfoFailCase(t *testing.T) {
 	assert.Equal(t, expectedError, err, true)
 
 }
+
+func TestMakeDirpoolRdataInfoAPIFailCase(t *testing.T) {
+
+	//Case1 Sending Error in ip_info block
+	rrsetDTO := make([]map[string]interface{}, 1)
+	data := []byte(`
+	[{
+		"host": "10.1.1.2",
+		"ttl": 300,
+		"allNonConfigured": false,
+			"geoInfo": {
+			"name": "North America",
+			"codes": [
+				"US"
+			]
+		},
+		"ipInfo": {
+			"name": "rdataIpInfo",
+			"ips": [{
+				"address": ["1234"]
+			}]
+		}
+	}]`)
+
+	expectedError := fmt.Errorf("1 error(s) decoding:\n\n* 'address' expected type 'string', got unconvertible type '[]interface {}' ip_info: udnssdk.IPInfo{Name:\"rdataIpInfo\", IsAccountLevel:false, Ips:[]udnssdk.IPAddrDTO{}}")
+
+	err := json.Unmarshal(data, &rrsetDTO)
+	if err != nil {
+		log.Println(err)
+	}
+	_, err = makeDirpoolRdataInfoAPI(rrsetDTO[0])
+	assert.Equal(t, expectedError, err, true)
+
+	//Case2 Sending Error in geo_info block
+	data = []byte(`
+	[{
+		"host": "10.1.1.2",
+		"ttl": 300,
+		"allNonConfigured": false,
+		"geoInfo": {
+			"name": ["North America"],
+			"codes": ["US"]
+		},
+		"ipInfo": {
+				"name": "rdataIpInfo",
+				"ips": [{
+				"address": "10.0.1.1"
+				}]
+		}
+	}]
+	`)
+
+	expectedError = fmt.Errorf("1 error(s) decoding:\n\n* 'name' expected type 'string', got unconvertible type '[]interface {}' geo_info: map[string]interface {}{\"codes\":[]interface {}{\"US\"}, \"name\":[]interface {}{\"North America\"}} GeoInfo: udnssdk.GeoInfo{Name:\"\", IsAccountLevel:false, Codes:[]string(nil)}")
+
+	err = json.Unmarshal(data, &rrsetDTO)
+	if err != nil {
+		log.Println(err)
+	}
+	_, err = makeDirpoolRdataInfoAPI(rrsetDTO[0])
+	assert.Equal(t, expectedError, err, true)
+
+}
 func TestAccUltradnsDirpool(t *testing.T) {
 	var record udnssdk.RRSet
 	domain, _ := os.LookupEnv("ULTRADNS_DOMAIN")
