@@ -377,42 +377,42 @@ func TestMakeDirpoolRRSetResource(t *testing.T) {
 	rrsetDTO := make([]map[string]interface{}, 1)
 	noResponseDTO := make([]map[string]interface{}, 1)
 	data := []byte(`
-                [{
-                        "host": "10.1.1.2",
-                        "ttl": 300,
-                        "geo_info": [{
-                                "name": "North America",
-                                "codes": [
-                                        "US"
-                                ]
-                        }],
-                        "ip_info": [{
+					[{
+									"host": "10.1.1.2",
+									"ttl": 300,
+									"geo_info": [{
+													"name": "North America",
+													"codes": [
+																	"US"
+													]
+									}],
+									"ip_info": [{
 
-                                "name": "rdataIpInfo",
-                                "ips": [{
-                                        "address": "200.212.1.1"
-                                }]
-                        }]
-                }]
-        `)
+													"name": "rdataIpInfo",
+													"ips": [{
+																	"address": "200.212.1.1"
+													}]
+									}]
+					}]
+	`)
 
 	noResponseData := []byte(`
-                [{
-                        "geo_info": [{
-                                "name": "america",
-                                "codes": [
-                                        "EUR"
-                                ]
-                        }],
-                        "ip_info": [{
+					[{
+									"geo_info": [{
+													"name": "america",
+													"codes": [
+																	"EUR"
+													]
+									}],
+									"ip_info": [{
 
-                                "name": "nrIpInfo",
-                                "ips": [{
-                                        "address": "200.20.0.1"
-                                }]
-                        }]
-                   }]
-        `)
+													"name": "nrIpInfo",
+													"ips": [{
+																	"address": "200.20.0.1"
+													}]
+									}]
+							}]
+	`)
 
 	err := json.Unmarshal(noResponseData, &noResponseDTO)
 	if err != nil {
@@ -487,42 +487,42 @@ func TestPopulateResourceFromDirpool(t *testing.T) {
 	rrsetDTO := make([]map[string]interface{}, 1)
 	noResponseDTO := make([]map[string]interface{}, 1)
 	data := []byte(`
-                [{
-                        "host": "10.1.1.2",
-                        "ttl": 300,
-                        "geo_info": [{
-                                "name": "North America",
-                                "codes": [
-                                        "US"
-                                ]
-                        }],
-                        "ip_info": [{
+					[{
+									"host": "10.1.1.2",
+									"ttl": 300,
+									"geo_info": [{
+													"name": "North America",
+													"codes": [
+																	"US"
+													]
+									}],
+									"ip_info": [{
 
-                                "name": "rdataIpInfo",
-                                "ips": [{
-                                        "address": "200.212.1.1"
-                                }]
-                        }]
-                }]
-        `)
+													"name": "rdataIpInfo",
+													"ips": [{
+																	"address": "200.212.1.1"
+													}]
+									}]
+					}]
+	`)
 
 	noResponseData := []byte(`
-                [{
-                        "geo_info": [{
-                                "name": "america",
-                                "codes": [
-                                        "EUR"
-                                ]
-                        }],
-                        "ip_info": [{
+					[{
+									"geo_info": [{
+													"name": "america",
+													"codes": [
+																	"EUR"
+													]
+									}],
+									"ip_info": [{
 
-                                "name": "nrIpInfo",
-                                "ips": [{
-                                        "address": "200.20.0.1"
-                                }]
-                        }]
-                   }]
-        `)
+													"name": "nrIpInfo",
+													"ips": [{
+																	"address": "200.20.0.1"
+													}]
+									}]
+							}]
+	`)
 
 	err := json.Unmarshal(noResponseData, &noResponseDTO)
 	if err != nil {
@@ -577,41 +577,41 @@ func TestResourceUltradnsDirPoolCreate(t *testing.T) {
 	rrsetDTO := make([]map[string]interface{}, 1)
 	noResponseDTO := make([]map[string]interface{}, 1)
 	data := []byte(`
-			[{
-					"host": "10.1.1.2",
-					"ttl": 300,
-					"geo_info": [{
-							"name": "North America",
-							"codes": [
-									"US"
-							]
-					}],
-					"ip_info": [{
+									[{
+																	"host": "10.1.1.2",
+																	"ttl": 300,
+																	"geo_info": [{
+																									"name": "North America",
+																									"codes": [
+																																	"US"
+																									]
+																	}],
+																	"ip_info": [{
 
-							"name": "rdataIpInfo",
-							"ips": [{
-									"address": "200.212.1.1"
-							}]
-					}]
-			}]
+																									"name": "rdataIpInfo",
+																									"ips": [{
+																																	"address": "200.212.1.1"
+																									}]
+																	}]
+									}]
 	`)
 
 	noResponseData := []byte(`
-			[{
-					"geo_info": [{
-							"name": "america",
-							"codes": [
-									"EUR"
-							]
-					}],
-					"ip_info": [{
+									[{
+																	"geo_info": [{
+																									"name": "america",
+																									"codes": [
+																																	"EUR"
+																									]
+																	}],
+																	"ip_info": [{
 
-							"name": "nrIpInfo",
-							"ips": [{
-									"address": "200.20.0.1"
-							}]
-					}]
-			   }]
+																									"name": "nrIpInfo",
+																									"ips": [{
+																																	"address": "200.20.0.1"
+																									}]
+																	}]
+											}]
 	`)
 
 	err := json.Unmarshal(noResponseData, &noResponseDTO)
@@ -661,41 +661,41 @@ func TestResourceUltradnsDirPoolRead(t *testing.T) {
 	rrsetDTO := make([]map[string]interface{}, 1)
 	noResponseDTO := make([]map[string]interface{}, 1)
 	data := []byte(`
-			[{
-					"host": "10.1.1.2",
-					"ttl": 300,
-					"geo_info": [{
-							"name": "North America",
-							"codes": [
-									"US"
-							]
-					}],
-					"ip_info": [{
+									[{
+																	"host": "10.1.1.2",
+																	"ttl": 300,
+																	"geo_info": [{
+																									"name": "North America",
+																									"codes": [
+																																	"US"
+																									]
+																	}],
+																	"ip_info": [{
 
-							"name": "rdataIpInfo",
-							"ips": [{
-									"address": "200.212.1.1"
-							}]
-					}]
-			}]
+																									"name": "rdataIpInfo",
+																									"ips": [{
+																																	"address": "200.212.1.1"
+																									}]
+																	}]
+									}]
 	`)
 
 	noResponseData := []byte(`
-			[{
-					"geo_info": [{
-							"name": "america",
-							"codes": [
-									"EUR"
-							]
-					}],
-					"ip_info": [{
+									[{
+																	"geo_info": [{
+																									"name": "america",
+																									"codes": [
+																																	"EUR"
+																									]
+																	}],
+																	"ip_info": [{
 
-							"name": "nrIpInfo",
-							"ips": [{
-									"address": "200.20.0.1"
-							}]
-					}]
-			   }]
+																									"name": "nrIpInfo",
+																									"ips": [{
+																																	"address": "200.20.0.1"
+																									}]
+																	}]
+											}]
 	`)
 
 	err := json.Unmarshal(noResponseData, &noResponseDTO)
@@ -739,41 +739,41 @@ func TestResourceUltradnsDirPoolUpdate(t *testing.T) {
 	rrsetDTO := make([]map[string]interface{}, 1)
 	noResponseDTO := make([]map[string]interface{}, 1)
 	data := []byte(`
-			[{
-					"host": "10.1.1.2",
-					"ttl": 300,
-					"geo_info": [{
-							"name": "North America",
-							"codes": [
-									"US"
-							]
-					}],
-					"ip_info": [{
+									[{
+																	"host": "10.1.1.2",
+																	"ttl": 300,
+																	"geo_info": [{
+																									"name": "North America",
+																									"codes": [
+																																	"US"
+																									]
+																	}],
+																	"ip_info": [{
 
-							"name": "rdataIpInfo",
-							"ips": [{
-									"address": "200.212.1.1"
-							}]
-					}]
-			}]
+																									"name": "rdataIpInfo",
+																									"ips": [{
+																																	"address": "200.212.1.1"
+																									}]
+																	}]
+									}]
 	`)
 
 	noResponseData := []byte(`
-			[{
-					"geo_info": [{
-							"name": "america",
-							"codes": [
-									"EUR"
-							]
-					}],
-					"ip_info": [{
+									[{
+																	"geo_info": [{
+																									"name": "america",
+																									"codes": [
+																																	"EUR"
+																									]
+																	}],
+																	"ip_info": [{
 
-							"name": "nrIpInfo",
-							"ips": [{
-									"address": "200.20.0.1"
-							}]
-					}]
-			   }]
+																									"name": "nrIpInfo",
+																									"ips": [{
+																																	"address": "200.20.0.1"
+																									}]
+																	}]
+											}]
 	`)
 
 	err := json.Unmarshal(noResponseData, &noResponseDTO)
@@ -823,41 +823,41 @@ func TestResourceUltradnsDirPoolDelete(t *testing.T) {
 	rrsetDTO := make([]map[string]interface{}, 1)
 	noResponseDTO := make([]map[string]interface{}, 1)
 	data := []byte(`
-			[{
-					"host": "10.1.1.2",
-					"ttl": 300,
-					"geo_info": [{
-							"name": "North America",
-							"codes": [
-									"US"
-							]
-					}],
-					"ip_info": [{
+									[{
+																	"host": "10.1.1.2",
+																	"ttl": 300,
+																	"geo_info": [{
+																									"name": "North America",
+																									"codes": [
+																																	"US"
+																									]
+																	}],
+																	"ip_info": [{
 
-							"name": "rdataIpInfo",
-							"ips": [{
-									"address": "200.212.1.1"
-							}]
-					}]
-			}]
+																									"name": "rdataIpInfo",
+																									"ips": [{
+																																	"address": "200.212.1.1"
+																									}]
+																	}]
+									}]
 	`)
 
 	noResponseData := []byte(`
-			[{
-					"geo_info": [{
-							"name": "america",
-							"codes": [
-									"EUR"
-							]
-					}],
-					"ip_info": [{
+									[{
+																	"geo_info": [{
+																									"name": "america",
+																									"codes": [
+																																	"EUR"
+																									]
+																	}],
+																	"ip_info": [{
 
-							"name": "nrIpInfo",
-							"ips": [{
-									"address": "200.20.0.1"
-							}]
-					}]
-			   }]
+																									"name": "nrIpInfo",
+																									"ips": [{
+																																	"address": "200.20.0.1"
+																									}]
+																	}]
+											}]
 	`)
 
 	err := json.Unmarshal(noResponseData, &noResponseDTO)
@@ -954,57 +954,57 @@ func TestMakeDirpoolRRSetResourceFailCases(t *testing.T) {
 	noResponseDTO := make([]map[string]interface{}, 1)
 
 	data := []byte(`
-		[{
-				"host": "10.1.1.2",
-				"ttl": 300,
-				"geo_info": [{
-						"name": "North America",
-						"codes": [
-								"US"
-						]
-				}],
-				"ip_info": [{
-						"name": "rdataIpInfo",
-						"ips": [{
-								"address": "200.212.1.1"
-						}]
-				}]
-		}]
-		`)
+					[{
+													"host": "10.1.1.2",
+													"ttl": 300,
+													"geo_info": [{
+																					"name": "North America",
+																					"codes": [
+																													"US"
+																					]
+													}],
+													"ip_info": [{
+																					"name": "rdataIpInfo",
+																					"ips": [{
+																													"address": "200.212.1.1"
+																					}]
+													}]
+					}]
+					`)
 
 	//Case 1 when there is more than one no_response block
 	noResponseData := []byte(`
-		[{
-		"geo_info": [{
-			"name": "america",
-			"codes": [
-				"EUR"
-			]
-		}],
-		"ip_info": [{
+					[{
+					"geo_info": [{
+									"name": "america",
+									"codes": [
+													"EUR"
+									]
+					}],
+					"ip_info": [{
 
-			"name": "nrIpInfo",
-			"ips": [{
-				"address": "200.20.0.1"
-			}]
-		}]
+									"name": "nrIpInfo",
+									"ips": [{
+													"address": "200.20.0.1"
+									}]
+					}]
 	},
 	{
-		"geo_info": [{
-			"name": "america",
-			"codes": [
-				"EUR"
-			]
-		}],
-		"ip_info": [{
+					"geo_info": [{
+									"name": "america",
+									"codes": [
+													"EUR"
+									]
+					}],
+					"ip_info": [{
 
-			"name": "nrIpInfo",
-			"ips": [{
-				"address": "200.20.0.1"
-			}]
-		}]
+									"name": "nrIpInfo",
+									"ips": [{
+													"address": "200.20.0.1"
+									}]
+					}]
 	}]
-		`)
+					`)
 
 	err := json.Unmarshal(noResponseData, &noResponseDTO)
 	if err != nil {
@@ -1030,31 +1030,31 @@ func TestMakeDirpoolRRSetResourceFailCases(t *testing.T) {
 
 	// Case2 when there is error in no_response block
 	noResponseData = []byte(`
-		[{
-				"geo_info": [{
-					"name": "america",
-					"codes": [
-						"EUR"
-					]
-				},
-				{
-					"name": "america",
-					"codes": [
-						"EUR"
-					]
-				}],
-				"ip_info": [{
-						"name": "nrIpInfo",
-						"ips": [{
-								"address": "23"
-					},
-				{
-						"name": "nrIpInfo",
-						"ips": [{
-								"address": "23"
-					}]
-				}]
-		}]`)
+					[{
+													"geo_info": [{
+																	"name": "america",
+																	"codes": [
+																					"EUR"
+																	]
+													},
+													{
+																	"name": "america",
+																	"codes": [
+																					"EUR"
+																	]
+													}],
+													"ip_info": [{
+																					"name": "nrIpInfo",
+																					"ips": [{
+																													"address": "23"
+																	},
+													{
+																					"name": "nrIpInfo",
+																					"ips": [{
+																													"address": "23"
+																	}]
+													}]
+					}]`)
 
 	err = json.Unmarshal(noResponseData, &noResponseDTO)
 	if err != nil {
@@ -1085,40 +1085,40 @@ func TestPopulateResourceFromDirpoolFailCase(t *testing.T) {
 	rrsetDTO := make([]map[string]interface{}, 1)
 	noResponseDTO := make([]map[string]interface{}, 1)
 	data := []byte(`
-		[{
-				"host": "10.1.1.2",
-				"ttl": 300,
-				"geo_info": [{
-						"name": "North America",
-						"codes": [
-								"US"
-						]
-				}],
-				"ip_info": [{
-						"name": "rdataIpInfo",
-						"ips": [{
-								"address": "200.212.1.1"
-						}]
-				}]
-		}]
-				`)
+					[{
+													"host": "10.1.1.2",
+													"ttl": 300,
+													"geo_info": [{
+																					"name": "North America",
+																					"codes": [
+																													"US"
+																					]
+													}],
+													"ip_info": [{
+																					"name": "rdataIpInfo",
+																					"ips": [{
+																													"address": "200.212.1.1"
+																					}]
+													}]
+					}]
+													`)
 
 	noResponseData := []byte(`
-		[{
-				"geo_info": [{
-						"name": "america",
-						"codes": [
-								"EUR"
-						]
-				}],
-				"ip_info": [{
-						"name": "nrIpInfo",
-						"ips": [{
-								"address": "200.20.0.1"
-						}]
-				}]
-		}]
-				`)
+					[{
+													"geo_info": [{
+																					"name": "america",
+																					"codes": [
+																													"EUR"
+																					]
+													}],
+													"ip_info": [{
+																					"name": "nrIpInfo",
+																					"ips": [{
+																													"address": "200.20.0.1"
+																					}]
+													}]
+					}]
+													`)
 
 	err := json.Unmarshal(noResponseData, &noResponseDTO)
 	if err != nil {
@@ -1149,6 +1149,166 @@ func TestPopulateResourceFromDirpoolFailCase(t *testing.T) {
 
 }
 
+func TestMakeDirpoolRdataInfoFailCase(t *testing.T) {
+	//Case1 when ip_info Block is more than once
+	rrsetDTO := make([]map[string]interface{}, 1)
+	data := []byte(`
+					[{
+													"host": "10.1.1.2",
+													"ttl": 300,
+													"all_non_configured": false,
+													"geo_info": [{
+																					"name": "North America",
+																					"codes": [
+																													"US"
+																					]
+													}],
+													"ip_info": [{
+																					"name": "rdataIpInfo",
+																					"ips": [{
+																													"address": "200.212.1.1"
+																					}]
+													},
+													{
+																	"name": "rdataIpInfo",
+																	"ips": [{
+																									"address": "200.212.1.1"
+																	}]
+													}]
+					}]
+	`)
+
+	expectedError := fmt.Errorf("ip_info: only 0 or 1 blocks alowed, got: 2")
+
+	err := json.Unmarshal(data, &rrsetDTO)
+	if err != nil {
+		log.Println(err)
+	}
+
+	_, err = makeDirpoolRdataInfo(rrsetDTO[0])
+	assert.Equal(t, expectedError, err, true)
+
+	//Case2 When geo_info Block is more than once
+	data = []byte(`
+	[{
+		"host": "10.1.1.2",
+		"ttl": 300,
+		"all_non_configured": false,
+		"geo_info": [{
+			"name": "North America",
+			"codes": [
+				"US"
+			]
+			},{
+			"name": "North America",
+			"codes": [
+				"US"
+			]
+		}],
+		"ip_info": [{
+			"name": "rdataIpInfo",
+			"ips": [{
+				"address": "200.212.1.1"
+			}]
+		}]
+	}]`)
+
+	expectedError = fmt.Errorf("geo_info: only 0 or 1 blocks alowed, got: 2")
+
+	err = json.Unmarshal(data, &rrsetDTO)
+	if err != nil {
+		log.Println(err)
+	}
+	_, err = makeDirpoolRdataInfo(rrsetDTO[0])
+	assert.Equal(t, expectedError, err, true)
+
+	//Case3 Sending Error in ip_info block
+	data = []byte(`
+	[{
+		"host": "10.1.1.2",
+		"ttl": 300,
+		"all_non_configured": false,
+			"geo_info": [{
+			"name": "North America",
+			"codes": [
+				"US"
+			]
+		}],
+		"ip_info": [{
+			"name": "rdataIpInfo",
+			"ips": [{
+				"address": ["1234"]
+			}]
+		}]
+	}]`)
+
+	expectedError = fmt.Errorf("1 error(s) decoding:\n\n* 'address' expected type 'string', got unconvertible type '[]interface {}' ip_info: udnssdk.IPInfo{Name:\"rdataIpInfo\", IsAccountLevel:false, Ips:[]udnssdk.IPAddrDTO{}}")
+
+	err = json.Unmarshal(data, &rrsetDTO)
+	if err != nil {
+		log.Println(err)
+	}
+	_, err = makeDirpoolRdataInfo(rrsetDTO[0])
+	assert.Equal(t, expectedError, err, true)
+
+	//Case4 Sending Error in geo_info block
+	data = []byte(`
+	[{
+		"host": "10.1.1.2",
+		"ttl": 300,
+		"all_non_configured": false,
+		"geo_info": [{
+			"name": ["North America"],
+			"codes": ["US"]
+		}],
+		"ip_info": [{
+				"name": "rdataIpInfo",
+				"ips": [{
+				"address": "10.0.1.1"
+				}]
+		}]
+	}]
+	`)
+
+	expectedError = fmt.Errorf("1 error(s) decoding:\n\n* 'name' expected type 'string', got unconvertible type '[]interface {}' geo_info: map[string]interface {}{\"codes\":[]interface {}{\"US\"}, \"name\":[]interface {}{\"North America\"}} GeoInfo: udnssdk.GeoInfo{Name:\"\", IsAccountLevel:false, Codes:[]string(nil)}")
+
+	err = json.Unmarshal(data, &rrsetDTO)
+	if err != nil {
+		log.Println(err)
+	}
+	_, err = makeDirpoolRdataInfo(rrsetDTO[0])
+	assert.Equal(t, expectedError, err, true)
+
+	//Case5 Sending Error in ip_info block in name field
+	data = []byte(`
+		[{
+			"host": "10.1.1.2",
+			"ttl": 300,
+			"all_non_configured": false,
+				"geo_info": [{
+				"name": "North America",
+				"codes": [
+					"US"
+				]
+			}],
+			"ip_info": [{
+				"name": ["rdataIpInfo"],
+				"ips": [{
+					"address": "1234"
+				}]
+			}]
+		}]`)
+
+	expectedError = fmt.Errorf("1 error(s) decoding:\n\n* 'name' expected type 'string', got unconvertible type '[]interface {}' ip_info: udnssdk.IPInfo{Name:\"\", IsAccountLevel:false, Ips:[]udnssdk.IPAddrDTO(nil)}")
+
+	err = json.Unmarshal(data, &rrsetDTO)
+	if err != nil {
+		log.Println(err)
+	}
+	_, err = makeDirpoolRdataInfo(rrsetDTO[0])
+	assert.Equal(t, expectedError, err, true)
+
+}
 func TestAccUltradnsDirpool(t *testing.T) {
 	var record udnssdk.RRSet
 	domain, _ := os.LookupEnv("ULTRADNS_DOMAIN")
@@ -1243,70 +1403,70 @@ func testAccDirpoolCheckDestroy(s *terraform.State) error {
 
 const testCfgDirpoolMinimal = `
 resource "ultradns_dirpool" "it" {
-  zone        = "%s"
-  name        = "test-dirpool-minimal"
-  type        = "A"
-  description = "Minimal directional pool"
+zone        = "%s"
+name        = "test-dirpool-minimal"
+type        = "A"
+description = "Minimal directional pool"
 
-  rdata {
-        ttl         = 300
-        host = "10.1.0.1"
-        all_non_configured = true
-  }
+rdata {
+	ttl         = 300
+	host = "10.1.0.1"
+	all_non_configured = true
+}
 }
 `
 
 const testCfgDirpoolMaximal = `
 resource "ultradns_dirpool" "it" {
-  zone        = "%s"
-  name        = "test-dirpool-maximal"
-  type        = "A"
-  description = "Description of pool"
+zone        = "%s"
+name        = "test-dirpool-maximal"
+type        = "A"
+description = "Description of pool"
 
-  conflict_resolve = "GEO"
+conflict_resolve = "GEO"
 
-  rdata {
-        ttl         = 300
-        host               = "10.1.1.1"
-        all_non_configured = true
-  }
+rdata {
+	ttl         = 300
+	host               = "10.1.1.1"
+	all_non_configured = true
+}
 
-  rdata {
-        host = "10.1.1.2"
-        ttl         = 300
+rdata {
+	host = "10.1.1.2"
+	ttl         = 300
 
-        geo_info {
-          name = "North America"
+	geo_info {
+			name = "North America"
 
-          codes = [
-        "US-OK",
-        "US-DC",
-        "US-MA",
-          ]
-        }
+			codes = [
+	"US-OK",
+	"US-DC",
+	"US-MA",
+			]
+	}
 
-  }
+}
 
-  rdata {
-        host = "10.1.1.3"
+rdata {
+	host = "10.1.1.3"
 
-        ip_info {
-          name = "some Ips"
+	ip_info {
+			name = "some Ips"
 
-          ips {
-        start = "200.20.0.1"
-        end   = "200.20.0.10"
-          }
+			ips {
+	start = "200.20.0.1"
+	end   = "200.20.0.10"
+			}
 
-          ips {
-        cidr = "20.20.20.0/24"
-          }
+			ips {
+	cidr = "20.20.20.0/24"
+			}
 
-          ips {
-        address = "50.60.70.80"
-          }
-        }
-  }
+			ips {
+	address = "50.60.70.80"
+			}
+	}
+}
 
 #   rdata {
 #     host = "10.1.1.4"
@@ -1322,22 +1482,22 @@ resource "ultradns_dirpool" "it" {
 #     }
 #   }
 
-  no_response {
-        geo_info {
-          name = "nrGeo"
+no_response {
+	geo_info {
+			name = "nrGeo"
 
-          codes = [
-        "LU", "ES", "SJ", "JE", "NL", "HU", "FR", "GB", "IE", "MT", "IM", "BG", "LT", "MD", "GR", "IT", "BA", "PL", "BE", "UA", "BY", "IS", "PT", "LV", "FO", "AM", "CZ", "VA", "LI", "AT", "NO", "EE", "AX", "U5", "DE", "SE", "AL", "SM", "AD", "SI", "GG", "CH", "MK", "FI", "MC", "GI", "GE", "HR", "ME", "AZ", "RO", "SK", "DK", "RS"
-          ]
-        }
+			codes = [
+	"LU", "ES", "SJ", "JE", "NL", "HU", "FR", "GB", "IE", "MT", "IM", "BG", "LT", "MD", "GR", "IT", "BA", "PL", "BE", "UA", "BY", "IS", "PT", "LV", "FO", "AM", "CZ", "VA", "LI", "AT", "NO", "EE", "AX", "U5", "DE", "SE", "AL", "SM", "AD", "SI", "GG", "CH", "MK", "FI", "MC", "GI", "GE", "HR", "ME", "AZ", "RO", "SK", "DK", "RS"
+			]
+	}
 
-        ip_info {
-          name = "nrIP"
+	ip_info {
+			name = "nrIP"
 
-          ips {
-        address = "197.231.41.3"
-          }
-        }
-  }
+			ips {
+	address = "197.231.41.3"
+			}
+	}
+}
 }
 `
