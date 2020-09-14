@@ -7,7 +7,7 @@ ENHANCEMENTS:
 * It is now compatible with latest ultradns-sdk-go plugin.
 * Enhanced ".travis.yml" file to support code coverage.
 * Updated "README" file to support current changes.
-* Updated "GNUMake" file for code coverage and testing regarding changes.
+* Updated "GNUMake" file for code coverage and testing.
 
 BUG FIXES:
 * resource/ultradns_rdpool: Resolved the acceptance test which was failing due to unsupported fields.

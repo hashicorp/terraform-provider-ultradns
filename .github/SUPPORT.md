@@ -1,18 +1,16 @@
 # Support
 ---
-name: Support Ticket
-about: Request Support
-title: ''
-labels: ''
-assignees: ''
-
----
+name | about |title | labels |assignees
+--- | --- | --- | --- |--- |--- |--- |--- |--- |--- |--- |---
+Request Support|Support Ticket|
 
 **Describe the bug or the context for your support request**
+
 Please provide details of the problem, including the version of terraform_ultradns_provider that you
 are using, if applicable.
 
 **Sample**
+
 If possible, please provide a test case or sample application that reproduces
 the problem. This makes it much easier for us to diagnose the problem and to verify that
 we have fixed it.
