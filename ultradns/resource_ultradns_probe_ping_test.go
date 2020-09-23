@@ -263,33 +263,7 @@ func TestPopulateResourceDataFromPingProbe(t *testing.T) {
 	expectedResourceData := expectedResourceRecordObj.TestResourceData()
 	expectedData := []byte(`{"id":"0608485259D5AC79","type":"PING","interval":"ONE_MINUTE","agents":["DALLAS","AMSTERDAM"],"threshold":2,"details":{"packets":15,"packetSize":56,"limit":{"lossPercent":{"warning":1,"critical":2,"fail":3},"total":{"warning":2,"critical":3,"fail":4}}}}`)
 	expectedResource := udnssdk.ProbeInfoDTO{}
-	//	expectedDataDetail := &udnssdk.ProbeDetailsDTO{
-	//	Detail: udnssdk.PingProbeDetailsDTO{
-	//                        Packets:15,
-	//                        PacketSize:56,
-	//                        Limits: map[string]udnssdk.ProbeDetailsLimitDTO{
-	//                                        "lossPercent": udnssdk.ProbeDetailsLimitDTO{
-	//                                                Warning: 1,
-	//                                                Critical: 2,
-	//                                                Fail: 3,
-	//                                        },
-	//                                        "total": udnssdk.ProbeDetailsLimitDTO{
-	//                                                Warning: 2,
-	//                                                Critical: 3,
-	//                                                Fail: 4,
-	//                                        },
-	//                        },
-	//                },
-	//        }
-	//
-	//
 	err := json.Unmarshal(expectedData, &expectedResource)
-	//	expectedResource.Details =  expectedDataDetail
-	//
-	//	if err != nil {
-	//			log.Println(err)
-	//	}
-	//
 	pingProbeDTO := make([]map[string]interface{}, 1)
 	pingProbe := []byte(`
 		{
