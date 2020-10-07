@@ -1,8 +1,8 @@
 # Support
 ---
-name | about |title | labels |assignees
---- | --- | --- | --- |--- |--- |--- |--- |--- |--- |--- |---
-Request Support|Support Ticket|
+|  name | about |title | labels |assignees|
+|---|---|---|---|---|
+| Request Support|Support Ticket|
 
 **Describe the bug or the context for your support request**
 
