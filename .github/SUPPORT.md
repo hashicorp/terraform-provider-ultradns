@@ -1,20 +1,13 @@
 # Support
----
-|  name | about |title | labels |assignees|
-|---|---|---|---|---|
-| Request Support|Support Ticket|
 
-**Describe the bug or the context for your support request**
+**Describe the issue that you are creating the support request for.**
 
-Please provide details of the problem, including the version of terraform_ultradns_provider that you
-are using, if applicable.
+Please provide a basic overview for the problem you are encountering. Also, include the version of terraform_ultradns_provider that you are using, if applicable
 
 **Sample**
 
-If possible, please provide a test case or sample application that reproduces
-the problem. This makes it much easier for us to diagnose the problem and to verify that
-we have fixed it.
+Please provide test cases or sample application context so that we can try to reproduce your issue. Without these details, it will be much harder for our Support team to assist you.
 
 **Contact**
 
-After you have created the issue, please feel free to contact UltraDNS Client Support team via [https://www.home.neustar/support](https://www.home.neustar/support) to further discuss your request.
+To check the status of your support request, you can contact our UltraDNS Client Support team using the following URL: https://www.home.neustar/support. Please have your Support Ticket / Confirmation number available.
