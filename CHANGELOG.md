@@ -3,7 +3,7 @@
 ENHANCEMENTS:
 * Added the Terrform Import feature, which can be used to import data from UltraDNS.
 * Added additional Unit Testcases for existing resources.
-* Unit Testcase coverage has been improved by 80% for this project.
+* Unit Testcase coverage is now at 80% for this project.
 * Compatibility with latest [ultradns-sdk-go](https://github.com/ultradns/ultradns-sdk-go) plugin.
 * Enhanced ".travis.yml" to enable additional code coverage.
 * Updated "README" file to reflect current changes.
