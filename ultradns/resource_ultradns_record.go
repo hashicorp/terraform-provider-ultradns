@@ -7,9 +7,9 @@ import (
 	"strconv"
 	"strings"
 
-	udnssdk "github.com/aliasgharmhowwala/ultradns-sdk-go"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	log "github.com/sirupsen/logrus"
+	udnssdk "github.com/ultradns/ultradns-sdk-go"
 )
 
 func newRRSetResource(d *schema.ResourceData) (rRSetResource, error) {

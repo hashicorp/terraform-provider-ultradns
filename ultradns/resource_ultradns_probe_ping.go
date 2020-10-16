@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/aliasgharmhowwala/ultradns-sdk-go"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	log "github.com/sirupsen/logrus"
+	"github.com/ultradns/ultradns-sdk-go"
 )
 
 func resourceUltradnsProbePing() *schema.Resource {

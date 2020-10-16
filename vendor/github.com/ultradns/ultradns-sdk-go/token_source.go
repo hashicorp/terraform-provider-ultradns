@@ -26,5 +26,5 @@ func Endpoint(BaseURL string) oauth2.Endpoint {
 
 // TokenURL returns an OAuth2 TokenURL for UltraDNS
 func TokenURL(BaseURL string) string {
-	return fmt.Sprintf("%s/%s/authorization/token", BaseURL, apiVersion)
+	return fmt.Sprintf("%s/authorization/token", BaseURL)
 }

@@ -8,12 +8,12 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/aliasgharmhowwala/ultradns-sdk-go"
 	"github.com/fatih/structs"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/mitchellh/mapstructure"
 	log "github.com/sirupsen/logrus"
+	"github.com/ultradns/ultradns-sdk-go"
 )
 
 func resourceUltradnsDirpool() *schema.Resource {

@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"testing"
 
-	udnssdk "github.com/aliasgharmhowwala/ultradns-sdk-go"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
+	udnssdk "github.com/ultradns/ultradns-sdk-go"
 )
 
 func TestProbeRRSetKeyCreate(t *testing.T) {

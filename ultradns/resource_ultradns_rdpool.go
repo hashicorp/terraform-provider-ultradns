@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"strings"
 
-	udnssdk "github.com/aliasgharmhowwala/ultradns-sdk-go"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	log "github.com/sirupsen/logrus"
+	udnssdk "github.com/ultradns/ultradns-sdk-go"
 )
 
 func resourceUltradnsRdpool() *schema.Resource {

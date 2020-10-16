@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/fatih/structs"
@@ -170,6 +171,7 @@ type DPRDataInfo struct {
 	AllNonConfigured bool     `json:"allNonConfigured,omitempty" terraform:"all_non_configured"`
 	IPInfo           *IPInfo  `json:"ipInfo,omitempty" terraform:"ip_info"`
 	GeoInfo          *GeoInfo `json:"geoInfo,omitempty" terraform:"geo_info"`
+	TTL              uint32      `json:"ttl,omitempty" terraform:"ttl"`
 	Type             string   `json:"type,omitempty" terraform:"type"` // not mentioned in REST API doc
 }
 
@@ -209,13 +211,13 @@ type SBPoolProfile struct {
 
 // SBRDataInfo wraps the rdataInfo object of a SBPoolProfile
 type SBRDataInfo struct {
-	State            string `json:"state"`
-	RunProbes        bool   `json:"runProbes"`
-	Priority         int    `json:"priority"`
-	FailoverDelay    int    `json:"failoverDelay,omitempty"`
-	Threshold        int    `json:"threshold"`
-	Weight           int    `json:"weight"`
-	AvailableToServe bool   `json:"availableToServe,omitempty"`
+	State            string      `json:"state"`
+	RunProbes        bool        `json:"runProbes"`
+	Priority         int         `json:"priority"`
+	FailoverDelay    int         `json:"failoverDelay,omitempty"`
+	Threshold        int         `json:"threshold"`
+	Weight           interface{} `json:"weight"`
+	AvailableToServe bool        `json:"availableToServe,omitempty"`
 }
 
 // BackupRecord wraps the backupRecord objects of an SBPoolProfile response
@@ -241,7 +243,7 @@ type TCPoolProfile struct {
 type RRSet struct {
 	OwnerName string     `json:"ownerName"`
 	RRType    string     `json:"rrtype"`
-	TTL       int        `json:"ttl"`
+	TTL       int        `json:"ttl,omitempty"`
 	RData     []string   `json:"rdata"`
 	Profile   RawProfile `json:"profile,omitempty"`
 }
@@ -263,11 +265,15 @@ type RRSetKey struct {
 
 // URI generates the URI for an RRSet
 func (k RRSetKey) URI() string {
-	uri := fmt.Sprintf("zones/%s/rrsets", k.Zone)
+	// Escaping Reverse Domain
+	zoneName := strings.Replace(k.Zone, "/", "%2F", -1)
+	uri := fmt.Sprintf("zones/%s/rrsets", zoneName)
 	if k.Type != "" {
-		uri += fmt.Sprintf("/%v", k.Type)
+		uri += fmt.Sprintf("/%s", k.Type)
 		if k.Name != "" {
-			uri += fmt.Sprintf("/%v", k.Name)
+			// Escaping Reverse Domain
+			ownerName := strings.Replace(k.Name, "/", "%2F", -1)
+			uri += fmt.Sprintf("/%s", ownerName)
 		}
 	}
 	return uri
@@ -366,11 +372,11 @@ func (s *RRSetsServiceHandler) Select(k RRSetKey) ([]RRSet, error) {
 			return rrsets, err
 		}
 
-		log.Printf("ResultInfo: %+v\n", ri)
 		for _, rrset := range reqRrsets {
 			rrsets = append(rrsets, rrset)
 		}
 		if ri.ReturnedCount+ri.Offset >= ri.TotalCount {
+			log.Printf("ResultInfo: %+v\n", ri)
 			return rrsets, nil
 		}
 		offset = ri.ReturnedCount + ri.Offset

@@ -6,11 +6,11 @@ import (
 	"os"
 	"testing"
 
-	udnssdk "github.com/aliasgharmhowwala/ultradns-sdk-go"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
+	udnssdk "github.com/ultradns/ultradns-sdk-go"
 )
 
 func setResourceRecordHTTPProbe() (resourceRecord *schema.Resource) {

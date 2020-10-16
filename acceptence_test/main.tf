@@ -4,6 +4,7 @@ terraform {
 
 
 provider "ultradns" {
+  version  = "~>0.2.0"
   username = "${var.ULTRADNS_USERNAME}"
   password = "${var.ULTRADNS_PASSWORD}"
   baseurl  = "${var.ULTRADNS_BASEURL}"
@@ -277,7 +278,6 @@ resource "ultradns_dirpool" "test-dirpool-minimal" {
   zone        = "${var.ULTRADNS_DOMAINNAME}"
   name        = "testdirpoolminimal.com"
   type        = "A"
-  ttl         = 300
   description = "Minimal directional pool"
 
   rdata {
@@ -290,7 +290,6 @@ resource "ultradns_dirpool" "test-dirpool-maximal" {
   zone        = "${var.ULTRADNS_DOMAINNAME}"
   name        = "testdirpoolmaximal.com"
   type        = "A"
-  ttl         = 300
   description = "Description of pool"
   conflict_resolve = "GEO"
 
