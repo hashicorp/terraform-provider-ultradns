@@ -122,7 +122,6 @@ func resourceUltradnsRecord() *schema.Resource {
 			"type": {
 				Type:     schema.TypeString,
 				Required: true,
-				//ForceNew: true,
 			},
 			"rdata": {
 				Type:     schema.TypeSet,

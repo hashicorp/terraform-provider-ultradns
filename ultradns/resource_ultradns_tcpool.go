@@ -345,9 +345,7 @@ func resourceUltradnsTcpoolImport(
 		d.Set("zone", attributes[1])
 		d.Set("name", attributes[0])
 	} else {
-
 		return nil, errors.New("Wrong ID please provide proper ID in format name:zone ")
-
 	}
 	return []*schema.ResourceData{d}, nil
 }

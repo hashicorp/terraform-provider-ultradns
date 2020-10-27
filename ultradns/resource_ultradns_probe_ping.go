@@ -246,9 +246,7 @@ func resourceUltradnsProbePingImport(
 		d.Set("zone", attributes[1])
 		d.Set("name", attributes[0])
 	} else {
-
 		return nil, errors.New("Wrong ID please provide proper ID in format name:zone:id ")
-
 	}
 	d.SetId(newId)
 	return []*schema.ResourceData{d}, nil
