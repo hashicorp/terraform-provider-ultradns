@@ -17,7 +17,6 @@ Provides an UltraDNS Directional Controller pool resource.
 resource "ultradns_dirpool" "pool" {
   zone        = "${var.ultradns_domain}"
   name        = "terraform-dirpool"
-  ttl         = 300
   description = "Minimal DirPool"
 
   rdata {
@@ -37,7 +36,6 @@ The following arguments are supported:
 - `type` - (Required) The Record Type of the record
 * `description` - (Required) Description of the Traffic Controller pool. Valid values are strings less than 256 characters.
 * `rdata` - (Required) a list of Record Data blocks, one for each member in the pool. Record Data documented below.
-* `ttl` - (Optional) The TTL of the record. Default: `3600`.
 * `conflict_resolve` - (Optional) String. Valid: `"GEO"` or `"IP"`. Default: `"GEO"`.
 * `no_response` - (Optional) a single Record Data block, without any `host` attribute. Record Data documented below.
 
