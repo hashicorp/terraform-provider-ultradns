@@ -328,15 +328,17 @@ func populateResourceDataFromHTTPProbe(p udnssdk.ProbeInfoDTO, d *schema.Resourc
 // State Function to seperate id into appropriate name and zone
 func resourceUltradnsProbeHTTPImport(
 	d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	newId := strings.TrimSuffix(d.Id(), ".")
-	log.Infof("d.Id = %s", d.Id())
-	attributes := strings.Split(newId, ":")
-	if len(attributes) > 1 {
-		d.Set("zone", attributes[1])
-		d.Set("name", attributes[0])
-	} else {
-		return nil, errors.New("Wrong ID please provide proper ID in format name:zone:id ")
+	customError := "Wrong ID please provide proper ID in format name:zone:id"
+	attributes, err := parseId(d, customError)
+	if err != nil {
+		return nil, err
 	}
-	d.SetId(newId)
+	if len(attributes) != 3 {
+		return nil, errors.New(customError)
+	}
+	d.Set("zone", attributes[1])
+	d.Set("name", attributes[0])
+	d.SetId(strings.TrimSuffix(d.Id(), "."))
+
 	return []*schema.ResourceData{d}, nil
 }

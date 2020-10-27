@@ -3,7 +3,6 @@ package ultradns
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"reflect"
 	"strings"
@@ -711,13 +710,12 @@ func mapEncode(rawVal interface{}) map[string]interface{} {
 // State Function to seperate id into appropriate name and zone
 func resourceUltradnsDirpoolImport(
 	d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	newId := strings.TrimSuffix(d.Id(), ".")
-	attributes := strings.SplitN(newId, ":", 2)
-	if len(attributes) > 1 {
-		d.Set("zone", attributes[1])
-		d.Set("name", attributes[0])
-	} else {
-		return nil, errors.New("Wrong ID please provide proper ID in format name:zone ")
+	customError := "Wrong ID please provide proper ID in format name:zone"
+	attributes, err := parseId(d, customError)
+	if err != nil {
+		return nil, err
 	}
+	d.Set("zone", attributes[1])
+	d.Set("name", attributes[0])
 	return []*schema.ResourceData{d}, nil
 }

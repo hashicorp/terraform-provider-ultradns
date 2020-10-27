@@ -287,17 +287,12 @@ func TestResourceUltradnsRecordImport(t *testing.T) {
 	}
 	resourceRecordObj := setResourceRecord()
 	d := resourceRecordObj.TestResourceData()
-	d.SetId("test:test.provider.ultradns.net")
+
+	d.SetId("test:test.provider.ultradns.net:MX")
 	newRecordData, _ := resourceUltradnsRecordImport(d, client)
 	assert.Equal(t, newRecordData[0].Get("name"), "test", true)
 	assert.Equal(t, newRecordData[0].Get("zone"), "test.provider.ultradns.net", true)
-
-	//Case 1 when using type for same recordname
-	d.SetId("test:test.provider.ultradns.net:MX")
-	newRecordData1, _ := resourceUltradnsRecordImport(d, client)
-	assert.Equal(t, newRecordData1[0].Get("name"), "test", true)
-	assert.Equal(t, newRecordData1[0].Get("zone"), "test.provider.ultradns.net", true)
-	assert.Equal(t, newRecordData1[0].Get("type"), "MX", true)
+	assert.Equal(t, newRecordData[0].Get("type"), "MX", true)
 
 }
 
@@ -314,6 +309,11 @@ func TestResourceUltradnsRecordImportFailCase(t *testing.T) {
 	log.Errorf("Error: %+v", err)
 	assert.NotNil(t, err, true)
 
+	// Case1 when only one delimiter are there
+	d.SetId("test:test.provider.ultradns.net.")
+	_, err = resourceUltradnsProbeHTTPImport(d, udnssdk.Client{})
+	log.Errorf("ERROR: %+v", err)
+	assert.NotNil(t, err, true)
 }
 
 func TestAccUltradnsRecord(t *testing.T) {

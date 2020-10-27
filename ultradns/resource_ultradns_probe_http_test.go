@@ -344,6 +344,13 @@ func TestResourceUltradnsProbeHTTPImportFailCase(t *testing.T) {
 	_, err := resourceUltradnsProbeHTTPImport(d, udnssdk.Client{})
 	log.Errorf("ERROR: %+v", err)
 	assert.NotNil(t, err, true)
+
+	// Case1 when only one delimiter are there
+	d.SetId("test:test.provider.ultradns.net.0608485259D5AC79")
+	_, err = resourceUltradnsProbeHTTPImport(d, udnssdk.Client{})
+	log.Errorf("ERROR: %+v", err)
+	assert.NotNil(t, err, true)
+
 }
 
 func TestAccUltradnsProbeHTTP(t *testing.T) {

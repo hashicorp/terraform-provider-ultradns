@@ -1,8 +1,10 @@
 package ultradns
 
 import (
+	"errors"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -195,4 +197,13 @@ func hashRdatas(v interface{}) int {
 	h := hashcode.String(m["host"].(string))
 	log.Printf("[DEBUG] hashRdatas(): %v -> %v", m["host"].(string), h)
 	return h
+}
+
+func parseId(d *schema.ResourceData, customError string) (attribute []string, err error) {
+	newID := strings.TrimSuffix(d.Id(), ".")
+	attributes := strings.Split(newID, ":")
+	if len(attributes) <= 1 {
+		return nil, errors.New(customError)
+	}
+	return attributes, nil
 }
