@@ -45,47 +45,57 @@ func newRRSetResource(d *schema.ResourceData) (rRSetResource, error) {
 	return r, nil
 }
 
-func populateResourceDataFromRRSet(r udnssdk.RRSet, d *schema.ResourceData) error {
-	zone := d.Get("zone")
-	typ := d.Get("type")
-	if typ == "" {
-		typ = (strings.Split(r.RRType, " "))[0]
+func populateResourceDataFromRRSet(r []udnssdk.RRSet, d *schema.ResourceData) error {
+	for _, rrset := range r {
+		zone := d.Get("zone")
+		typ := d.Get("type")
+		log.Infof("RRTYPE: %v", rrset.RRType)
+		if typ == "" {
+			typ = "A"
+		}
+		if (typ != (strings.Split(rrset.RRType, " "))[0]) && (typ != "TXT") {
+			continue
+		}
+
+		//setting type
 		d.Set("type", typ)
-	}
-	log.Infof("type = %s %s %s", typ, zone, strconv.Itoa(r.TTL))
-	// ttl
-	d.Set("ttl", strconv.Itoa(r.TTL))
-	// rdata
-	rdata := r.RData
 
-	// UltraDNS API returns answers double-encoded like JSON, so we must decode. This is their bug.
-	if typ == "TXT" {
-		rdata = make([]string, len(r.RData))
-		for i := range r.RData {
-			var s string
-			err := json.Unmarshal([]byte(r.RData[i]), &s)
-			if err != nil {
-				log.Printf("[INFO] TXT answer parse error: %+v", err)
-				s = r.RData[i]
+		log.Infof("typ = %s %s %s", typ, zone, strconv.Itoa(rrset.TTL))
+		// ttl
+		d.Set("ttl", strconv.Itoa(rrset.TTL))
+		// rdata
+		rdata := rrset.RData
+
+		// UltraDNS API returns answers double-encoded like JSON, so we must decode. This is their bug.
+		if typ == "TXT" {
+			rdata = make([]string, len(rrset.RData))
+			for i := range rrset.RData {
+				var s string
+				err := json.Unmarshal([]byte(rrset.RData[i]), &s)
+				if err != nil {
+					log.Printf("[INFO] TXT answer parse error: %+v", err)
+					s = rrset.RData[i]
+				}
+				rdata[i] = s
+
 			}
-			rdata[i] = s
-
 		}
-	}
 
-	err := d.Set("rdata", makeSetFromStrings(rdata))
-	if err != nil {
-		return fmt.Errorf("ultradns_record.rdata set failed: %#v", err)
-	}
-	// hostname
-	if r.OwnerName == "" {
-		d.Set("hostname", zone)
-	} else {
-		if strings.HasSuffix(r.OwnerName, ".") {
-			d.Set("hostname", r.OwnerName)
+		err := d.Set("rdata", makeSetFromStrings(rdata))
+		if err != nil {
+			return fmt.Errorf("ultradns_record.rdata set failed: %#v", err)
+		}
+		// hostname
+		if rrset.OwnerName == "" {
+			d.Set("hostname", zone)
 		} else {
-			d.Set("hostname", fmt.Sprintf("%s.%s", r.OwnerName, zone))
+			if strings.HasSuffix(rrset.OwnerName, ".") {
+				d.Set("hostname", rrset.OwnerName)
+			} else {
+				d.Set("hostname", fmt.Sprintf("%s.%s", rrset.OwnerName, zone))
+			}
 		}
+		break
 	}
 	return nil
 }
@@ -184,7 +194,7 @@ func resourceUltraDNSRecordRead(d *schema.ResourceData, meta interface{}) error 
 		}
 		return fmt.Errorf("not found: %v", err)
 	}
-	rec := rrsets[0]
+	rec := rrsets
 	return populateResourceDataFromRRSet(rec, d)
 }
 
@@ -226,14 +236,16 @@ func resourceUltraDNSRecordDelete(d *schema.ResourceData, meta interface{}) erro
 func resourceUltradnsRecordImport(
 	d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	newID := strings.TrimSuffix(d.Id(), ".")
-	attributes := strings.SplitN(newID, ":", 2)
-	if len(attributes) > 1 {
+	attributes := strings.Split(newID, ":")
+	if len(attributes) > 1 && len(attributes) <= 2 {
 		d.Set("zone", attributes[1])
 		d.Set("name", attributes[0])
+	} else if len(attributes) > 2 {
+		d.Set("zone", attributes[1])
+		d.Set("name", attributes[0])
+		d.Set("type", attributes[2])
 	} else {
-
 		return nil, errors.New("Wrong ID please provide proper ID in format name:zone ")
-
 	}
 
 	log.Infof("Schema Resource: %+v", []*schema.ResourceData{d})

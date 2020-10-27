@@ -139,33 +139,33 @@ func TestPopulateResourceDataFromRRSet(t *testing.T) {
 	d := resourceRecordObj.TestResourceData()
 	d.Set("zone", "test.provider.ultradns.net")
 
-	rRSetCase1 := udnssdk.RRSet{
+	rRSetCase1 := []udnssdk.RRSet{{
 		OwnerName: "test.",
 		TTL:       3600,
 		RRType:    "A",
 		RData:     []string{"10.0.0.1"},
-	}
+	}}
 
-	rRSetCase2 := udnssdk.RRSet{
+	rRSetCase2 := []udnssdk.RRSet{{
 		OwnerName: "",
 		TTL:       3600,
 		RRType:    "A",
 		RData:     []string{"10.0.0.1"},
-	}
+	}}
 
-	rRSetCase3 := udnssdk.RRSet{
+	rRSetCase3 := []udnssdk.RRSet{{
 		OwnerName: "test.provider.ultradns.net",
 		TTL:       3600,
 		RRType:    "A",
 		RData:     []string{"10.0.0.1"},
-	}
+	}}
 
-	rRSetCase4 := udnssdk.RRSet{
+	rRSetCase4 := []udnssdk.RRSet{{
 		OwnerName: "test.provider.ultradns.net",
 		TTL:       3600,
 		RRType:    "TXT",
 		RData:     []string{"Text one Test com"},
-	}
+	}}
 
 	//Case 1 when the owner name has suffix dot
 	log.Infof("Case 1 when the owner name has suffix dot")
@@ -188,7 +188,7 @@ func TestPopulateResourceDataFromRRSet(t *testing.T) {
 	//Case 4 When we are sending txt record
 	log.Infof("Case 4 when we provide normal owner name")
 	expectedData.Set("name", "test.provider.ultradns.net")
-	d.Set("type", "")
+	d.Set("type", "TXT")
 	expectedData.Set("type", "TXT")
 	expectedData.Set("rdata", []string{"Text one Test com"})
 	populateResourceDataFromRRSet(rRSetCase4, d)
@@ -291,6 +291,13 @@ func TestResourceUltradnsRecordImport(t *testing.T) {
 	newRecordData, _ := resourceUltradnsRecordImport(d, client)
 	assert.Equal(t, newRecordData[0].Get("name"), "test", true)
 	assert.Equal(t, newRecordData[0].Get("zone"), "test.provider.ultradns.net", true)
+
+	//Case 1 when using type for same recordname
+	d.SetId("test:test.provider.ultradns.net:MX")
+	newRecordData1, _ := resourceUltradnsRecordImport(d, client)
+	assert.Equal(t, newRecordData1[0].Get("name"), "test", true)
+	assert.Equal(t, newRecordData1[0].Get("zone"), "test.provider.ultradns.net", true)
+	assert.Equal(t, newRecordData1[0].Get("type"), "MX", true)
 
 }
 
