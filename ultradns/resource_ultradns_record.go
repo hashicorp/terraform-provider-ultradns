@@ -230,9 +230,5 @@ func resourceUltraDNSRecordDelete(d *schema.ResourceData, meta interface{}) erro
 // State Function to seperate id into appropriate name and zone
 func resourceUltradnsRecordImport(
 	d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	err := setResourceAndParseId(d, 3)
-	if err != nil {
-		return nil, err
-	}
-	return []*schema.ResourceData{d}, nil
+	return setResourceAndParseId(d)
 }

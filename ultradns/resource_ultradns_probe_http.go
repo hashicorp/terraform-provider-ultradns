@@ -327,10 +327,5 @@ func populateResourceDataFromHTTPProbe(p udnssdk.ProbeInfoDTO, d *schema.Resourc
 // State Function to seperate id into appropriate name and zone
 func resourceUltradnsProbeHTTPImport(
 	d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	customError := "Wrong ID please provide proper ID in format name:zone:id"
-	err := setProbeResourceAndParseId(d, customError, 3)
-	if err != nil {
-		return nil, err
-	}
-	return []*schema.ResourceData{d}, nil
+	return setProbeResourceAndParseId(d)
 }

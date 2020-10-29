@@ -199,28 +199,26 @@ func hashRdatas(v interface{}) int {
 	return h
 }
 
-func setProbeResourceAndParseId(d *schema.ResourceData, customError string, expectedAttributes int) (err error) {
+func setProbeResourceAndParseId(d *schema.ResourceData) (resourceData []*schema.ResourceData, err error) {
 	newID := strings.TrimSuffix(d.Id(), ".")
 	attributes := strings.Split(newID, ":")
-	if len(attributes) != expectedAttributes {
-		return errors.New(customError)
+	if len(attributes) != 3 {
+		return nil, errors.New("Wrong ID please provide proper ID in format name:zone:id")
 	}
 	d.Set("zone", attributes[1])
 	d.Set("name", attributes[0])
 	d.SetId(strings.TrimSuffix(d.Id(), "."))
-	return nil
+	return []*schema.ResourceData{d}, nil
 }
 
-func setResourceAndParseId(d *schema.ResourceData, expectedAttributes int) (err error) {
+func setResourceAndParseId(d *schema.ResourceData) (resourceData []*schema.ResourceData, err error) {
 	newID := strings.TrimSuffix(d.Id(), ".")
 	attributes := strings.Split(newID, ":")
-	customError := "Wrong ID please provide proper ID in format name:zone:type"
-	if len(attributes) != expectedAttributes {
-		return errors.New(customError)
-	} else if len(attributes) == 3 {
-		d.Set("type", attributes[2])
+	if len(attributes) != 3 {
+		return nil, errors.New("Wrong ID please provide proper ID in format name:zone:type")
 	}
+	d.Set("type", attributes[2])
 	d.Set("zone", attributes[1])
 	d.Set("name", attributes[0])
-	return nil
+	return []*schema.ResourceData{d}, nil
 }

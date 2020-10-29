@@ -338,9 +338,5 @@ func makeSetFromRdata(rds []string, rdis []udnssdk.SBRDataInfo) *schema.Set {
 // State Function to seperate id into appropriate name and zone
 func resourceUltradnsTcpoolImport(
 	d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	err := setResourceAndParseId(d, 3)
-	if err != nil {
-		return nil, err
-	}
-	return []*schema.ResourceData{d}, nil
+	return setResourceAndParseId(d)
 }
