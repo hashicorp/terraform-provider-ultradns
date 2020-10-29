@@ -1,7 +1,6 @@
 package ultradns
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
@@ -329,16 +328,9 @@ func populateResourceDataFromHTTPProbe(p udnssdk.ProbeInfoDTO, d *schema.Resourc
 func resourceUltradnsProbeHTTPImport(
 	d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	customError := "Wrong ID please provide proper ID in format name:zone:id"
-	attributes, err := parseId(d, customError)
+	err := setProbeResourceAndParseId(d, customError, 3)
 	if err != nil {
 		return nil, err
 	}
-	if len(attributes) != 3 {
-		return nil, errors.New(customError)
-	}
-	d.Set("zone", attributes[1])
-	d.Set("name", attributes[0])
-	d.SetId(strings.TrimSuffix(d.Id(), "."))
-
 	return []*schema.ResourceData{d}, nil
 }

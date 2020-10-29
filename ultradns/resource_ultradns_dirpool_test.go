@@ -900,10 +900,11 @@ func TestResourceUltradnsDirPoolImport(t *testing.T) {
 	}
 	resourceRecordObj := setResourceRecordDirPool()
 	d := resourceRecordObj.TestResourceData()
-	d.SetId("test:test.provider.ultradns.net")
+	d.SetId("test:test.provider.ultradns.net:A")
 	newRecordData, _ := resourceUltradnsDirpoolImport(d, client)
 	assert.Equal(t, newRecordData[0].Get("name"), "test", true)
 	assert.Equal(t, newRecordData[0].Get("zone"), "test.provider.ultradns.net", true)
+	assert.Equal(t, newRecordData[0].Get("type"), "A", true)
 
 }
 
@@ -1394,7 +1395,7 @@ func TestAccUltradnsDirpool(t *testing.T) {
 					resource.TestCheckResourceAttr("ultradns_dirpool.it", "rdata.463398947.all_non_configured", "true"),
 					resource.TestCheckResourceAttr("ultradns_dirpool.it", "rdata.463398947.ttl", "300"),
 					// Generated
-					resource.TestCheckResourceAttr("ultradns_dirpool.it", "id", fmt.Sprintf("test-dirpool-minimal:%s", domain)),
+					resource.TestCheckResourceAttr("ultradns_dirpool.it", "id", fmt.Sprintf("test-dirpool-minimal:%s:A", domain)),
 					resource.TestCheckResourceAttr("ultradns_dirpool.it", "hostname", fmt.Sprintf("test-dirpool-minimal.%s.", domain)),
 				),
 			},
@@ -1425,7 +1426,7 @@ func TestAccUltradnsDirpool(t *testing.T) {
 					resource.TestCheckResourceAttr("ultradns_dirpool.it", "no_response.0.geo_info.0.name", "nrGeo"),
 					resource.TestCheckResourceAttr("ultradns_dirpool.it", "no_response.0.ip_info.0.name", "nrIP"),
 					// Generated
-					resource.TestCheckResourceAttr("ultradns_dirpool.it", "id", fmt.Sprintf("test-dirpool-maximal:%s", domain)),
+					resource.TestCheckResourceAttr("ultradns_dirpool.it", "id", fmt.Sprintf("test-dirpool-maximal:%s:A", domain)),
 					resource.TestCheckResourceAttr("ultradns_dirpool.it", "hostname", fmt.Sprintf("test-dirpool-maximal.%s.", domain)),
 				),
 			},

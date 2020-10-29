@@ -48,7 +48,7 @@ func (r rRSetResource) RRSet() udnssdk.RRSet {
 }
 
 func (r rRSetResource) ID() string {
-	return fmt.Sprintf("%s:%s", r.OwnerName, r.Zone)
+	return fmt.Sprintf("%s:%s:%s", r.OwnerName, r.Zone, r.RRType)
 }
 
 func unzipRdataHosts(configured []interface{}) []string {
@@ -199,11 +199,28 @@ func hashRdatas(v interface{}) int {
 	return h
 }
 
-func parseId(d *schema.ResourceData, customError string) (attribute []string, err error) {
+func setProbeResourceAndParseId(d *schema.ResourceData, customError string, expectedAttributes int) (err error) {
 	newID := strings.TrimSuffix(d.Id(), ".")
 	attributes := strings.Split(newID, ":")
-	if len(attributes) <= 1 {
-		return nil, errors.New(customError)
+	if len(attributes) != expectedAttributes {
+		return errors.New(customError)
 	}
-	return attributes, nil
+	d.Set("zone", attributes[1])
+	d.Set("name", attributes[0])
+	d.SetId(strings.TrimSuffix(d.Id(), "."))
+	return nil
+}
+
+func setResourceAndParseId(d *schema.ResourceData, expectedAttributes int) (err error) {
+	newID := strings.TrimSuffix(d.Id(), ".")
+	attributes := strings.Split(newID, ":")
+	customError := "Wrong ID please provide proper ID in format name:zone:type"
+	if len(attributes) != expectedAttributes {
+		return errors.New(customError)
+	} else if len(attributes) == 3 {
+		d.Set("type", attributes[2])
+	}
+	d.Set("zone", attributes[1])
+	d.Set("name", attributes[0])
+	return nil
 }

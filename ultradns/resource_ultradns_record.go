@@ -2,7 +2,6 @@ package ultradns
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -50,9 +49,6 @@ func populateResourceDataFromRRSet(r []udnssdk.RRSet, d *schema.ResourceData) er
 		zone := d.Get("zone")
 		typ := d.Get("type")
 		log.Infof("RRTYPE: %v", rrset.RRType)
-		if typ == "" {
-			typ = "A"
-		}
 		if (typ != (strings.Split(rrset.RRType, " "))[0]) && (typ != "TXT") {
 			continue
 		}
@@ -163,7 +159,7 @@ func resourceUltraDNSRecordCreate(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return fmt.Errorf("create failed: %v", err)
 	}
-	d.SetId(fmt.Sprintf("%s:%s", r.ID(), d.Get("type")))
+	d.SetId(r.ID())
 	log.Printf("[INFO] ultradns_record.id: %v", d.Id())
 
 	return resourceUltraDNSRecordRead(d, meta)
@@ -234,17 +230,9 @@ func resourceUltraDNSRecordDelete(d *schema.ResourceData, meta interface{}) erro
 // State Function to seperate id into appropriate name and zone
 func resourceUltradnsRecordImport(
 	d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	customError := "Wrong ID please provide proper ID in format name:zone:type"
-	attributes, err := parseId(d, customError)
+	err := setResourceAndParseId(d, 3)
 	if err != nil {
 		return nil, err
 	}
-	if len(attributes) != 3 {
-		return nil, errors.New(customError)
-	}
-	d.Set("zone", attributes[1])
-	d.Set("name", attributes[0])
-	d.Set("type", attributes[2])
-
 	return []*schema.ResourceData{d}, nil
 }

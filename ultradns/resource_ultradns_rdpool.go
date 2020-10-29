@@ -232,13 +232,9 @@ func newRRSetResourceFromRdpool(d *schema.ResourceData) (rRSetResource, error) {
 // State Function to seperate id into appropriate name and zone
 func resourceUltradnsRdpoolImport(
 	d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	customError := "Wrong ID please provide proper ID in format name:zone"
-	attributes, err := parseId(d, customError)
+	err := setResourceAndParseId(d, 3)
 	if err != nil {
 		return nil, err
 	}
-	d.Set("zone", attributes[1])
-	d.Set("name", attributes[0])
-
 	return []*schema.ResourceData{d}, nil
 }

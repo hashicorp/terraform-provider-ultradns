@@ -169,18 +169,21 @@ func TestPopulateResourceDataFromRRSet(t *testing.T) {
 
 	//Case 1 when the owner name has suffix dot
 	log.Infof("Case 1 when the owner name has suffix dot")
+	d.Set("type", "A")
 	expectedData.Set("hostname", "test.")
 	populateResourceDataFromRRSet(rRSetCase1, d)
 	compareResourceData(t, expectedData, d)
 
 	//Case 2 When the owner name is empty
 	log.Infof("Case 2 When the owner name is empty")
+	d.Set("type", "A")
 	expectedData.Set("name", "")
 	populateResourceDataFromRRSet(rRSetCase2, d)
 	compareResourceData(t, expectedData, d)
 
 	//Case 3 when we provide normal owner name
 	log.Infof("Case 3 when we provide normal owner name")
+	d.Set("type", "A")
 	expectedData.Set("name", "test.provider.ultradns.net")
 	populateResourceDataFromRRSet(rRSetCase3, d)
 	compareResourceData(t, expectedData, d)

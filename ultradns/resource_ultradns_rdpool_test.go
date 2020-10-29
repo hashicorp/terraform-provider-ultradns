@@ -296,7 +296,7 @@ func TestResourceUltradnsRDPoolImport(t *testing.T) {
 	}
 	resourceRecordObj := setResourceRecordRDPool()
 	d := resourceRecordObj.TestResourceData()
-	d.SetId("test:test.provider.ultradns.net")
+	d.SetId("test:test.provider.ultradns.net:A")
 	newRecordData, _ := resourceUltradnsRdpoolImport(d, client)
 	assert.Equal(t, newRecordData[0].Get("name"), "test", true)
 	assert.Equal(t, newRecordData[0].Get("zone"), "test.provider.ultradns.net", true)
@@ -398,7 +398,7 @@ func TestAccUltradnsRdpool(t *testing.T) {
 					// Defaults
 					resource.TestCheckResourceAttr("ultradns_rdpool.it", "description", "Minimal RD Pool"),
 					// Generated
-					resource.TestCheckResourceAttr("ultradns_rdpool.it", "id", fmt.Sprintf("test-rdpool-minimal:%s", domain)),
+					resource.TestCheckResourceAttr("ultradns_rdpool.it", "id", fmt.Sprintf("test-rdpool-minimal:%s:A", domain)),
 					resource.TestCheckResourceAttr("ultradns_rdpool.it", "hostname", fmt.Sprintf("test-rdpool-minimal.%s.", domain)),
 				),
 			},
@@ -426,7 +426,7 @@ func TestAccUltradnsRdpool(t *testing.T) {
 					resource.TestCheckResourceAttr("ultradns_rdpool.it", "rdata.829755326", "10.6.1.2"),
 
 					// Generated
-					resource.TestCheckResourceAttr("ultradns_rdpool.it", "id", fmt.Sprintf("test-rdpool-maximal:%s", domain)),
+					resource.TestCheckResourceAttr("ultradns_rdpool.it", "id", fmt.Sprintf("test-rdpool-maximal:%s:A", domain)),
 					resource.TestCheckResourceAttr("ultradns_rdpool.it", "hostname", fmt.Sprintf("test-rdpool-maximal.%s.", domain)),
 				),
 			},

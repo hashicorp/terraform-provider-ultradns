@@ -501,7 +501,7 @@ func TestResourceUltradnsTCPoolImport(t *testing.T) {
 	}
 	resourceRecordObj := setResourceRecordTCPool()
 	d := resourceRecordObj.TestResourceData()
-	d.SetId("test:test.provider.ultradns.net")
+	d.SetId("test:test.provider.ultradns.net:A")
 	newRecordData, _ := resourceUltradnsTcpoolImport(d, client)
 	assert.Equal(t, newRecordData[0].Get("name"), "test", true)
 	assert.Equal(t, newRecordData[0].Get("zone"), "test.provider.ultradns.net", true)
@@ -555,7 +555,7 @@ func TestAccUltradnsTcpool(t *testing.T) {
 					resource.TestCheckResourceAttr("ultradns_tcpool.it", "rdata.2847814707.threshold", "1"),
 					resource.TestCheckResourceAttr("ultradns_tcpool.it", "rdata.2847814707.weight", "2"),
 					// Generated
-					resource.TestCheckResourceAttr("ultradns_tcpool.it", "id", fmt.Sprintf("test-tcpool-minimal:%s", domain)),
+					resource.TestCheckResourceAttr("ultradns_tcpool.it", "id", fmt.Sprintf("test-tcpool-minimal:%s:A", domain)),
 					resource.TestCheckResourceAttr("ultradns_tcpool.it", "hostname", fmt.Sprintf("test-tcpool-minimal.%s.", domain)),
 				),
 			},
@@ -600,7 +600,7 @@ func TestAccUltradnsTcpool(t *testing.T) {
 					resource.TestCheckResourceAttr("ultradns_tcpool.it", "rdata.1181892392.threshold", "1"),
 					resource.TestCheckResourceAttr("ultradns_tcpool.it", "rdata.1181892392.weight", "8"),
 					// Generated
-					resource.TestCheckResourceAttr("ultradns_tcpool.it", "id", fmt.Sprintf("test-tcpool-maximal:%s", domain)),
+					resource.TestCheckResourceAttr("ultradns_tcpool.it", "id", fmt.Sprintf("test-tcpool-maximal:%s:A", domain)),
 					resource.TestCheckResourceAttr("ultradns_tcpool.it", "hostname", fmt.Sprintf("test-tcpool-maximal.%s.", domain)),
 				),
 			},
