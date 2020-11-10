@@ -32,7 +32,24 @@ $ go build -o terraform-provider-ultradns
 ```
 Using the provider
 ----------------------
-## Fill in for each provider
+- *Note:* Using it as a third-party plugin, until officially released by hashicorp
+- Download the plugin binary (terraform-provider-ultradns_v0.X.X.zip) from the release assets
+- Unzip the plugin binary
+```$> unzip terraform-provider-ultradns_v0.X.X.zip```
+- Move the plugin to appropriate (third-party plugin) directory
+```$> mv terraform-provider-ultradns_v0.X.X ~/.terraform.d/plugins/```
+- Remove the older terraform plugin, if it exists
+```$> rm -f .terraform/plugins/<OS>_<ARCH>/terraform-provider-ultradns*```
+- Update main.tf to use the provider plugin as intended WITH the desired ultradns provider "version"
+	```
+	provider "ultradns" {
+	  version  = "~>0.X.X"
+	  username = "${var.ULTRADNS_USERNAME}"
+	  password = "${var.ULTRADNS_PASSWORD}"
+	  baseurl  = "${var.ULTRADNS_BASEURL}"
+	}
+	```
+- Initialize the plugin using "terraform init" command
 
 Developing the Provider
 ---------------------------
@@ -54,14 +71,14 @@ In order to run the full suite of Acceptance tests, run `make testacc`.
 
 - *Note:* "{terraform_plugin_directory}" is the `terraform.d` directory where we will place the binaries
 
-- *Note:*  The test domain specified in TF_VAR_ULTRADNS_DOMAINNAME must already be present at UltraDNS before running Acceptance Test Suite
+- *Note:*  The test domain specified in ULTRADNS_DOMAINNAME must already be present at UltraDNS before running Acceptance Test Suite
 
 ```sh
-$ cp terraform-provider-ultradns ${terraform_plugin_directory}/plugins
-$ export TF_VAR_ULTRADNS_USERNAME='***********'
-$ export TF_VAR_ULTRADNS_PASSWORD='***********'
-$ export TF_VAR_ULTRADNS_BASEURL='https://api.ultradns.com'
-$ export TF_VAR_ULTRADNS_DOMAINNAME='Domain Name'
+$ cp terraform-provider-ultradns_v0.X.X ${terraform_plugin_directory}/plugins
+$ export ULTRADNS_USERNAME='***********'
+$ export ULTRADNS_PASSWORD='***********'
+$ export ULTRADNS_BASEURL='https://api.ultradns.com'
+$ export ULTRADNS_DOMAINNAME='Domain Name'
 $ make testacc
 ```
 
@@ -72,7 +89,7 @@ In order to add the compiled plugin to terraform, you can simply run the followi
 
 - *Note:* "{terraform_plugin_directory}" is the `terraform.d` directory where we will place the binaries
 ```sh
-$ cp terraform-provider-ultradns ${terraform_plugin_directory}/plugins
+$ cp terraform-provider-ultradns_v0.X.X ${terraform_plugin_directory}/plugins
 $ cd ${terraform_project_directory}/
 $ terraform init
 $ terraform validate
