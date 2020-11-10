@@ -32,7 +32,7 @@ $ go build -o terraform-provider-ultradns
 ```
 Using the provider
 ----------------------
-- *Note:* Using it as a third-party plugin, until officially released by hashicorp
+*Note:* This will be utilized as a third-party plugin, until officially released by Hashicorp 
 - Download the plugin binary (terraform-provider-ultradns_v0.X.X.zip) from the release assets
 - Unzip the plugin binary
 ```$> unzip terraform-provider-ultradns_v0.X.X.zip```
@@ -41,6 +41,7 @@ Using the provider
 - Remove the older terraform plugin, if it exists
 ```$> rm -f .terraform/plugins/<OS>_<ARCH>/terraform-provider-ultradns*```
 - Update main.tf to use the provider plugin as intended WITH the desired ultradns provider "version"
+
 	```
 	provider "ultradns" {
 	  version  = "~>0.X.X"
@@ -49,25 +50,25 @@ Using the provider
 	  baseurl  = "${var.ULTRADNS_BASEURL}"
 	}
 	```
-- Initialize the plugin using "terraform init" command
+- Initialize the plugin using `terraform init` command
 
 Developing the Provider
 ---------------------------
 
-If you wish to work on the provider, you'll first need [Go](http://www.golang.org) installed on your machine (version 1.14+ is *required*). You'll also need to correctly setup a [GOPATH](http://golang.org/doc/code.html#GOPATH), as well as adding `$GOPATH/bin` to your `$PATH`.
+If you wish to work on the provider, you'll first need [Go](http://www.golang.org) installed on your machine (version 1.14+ is **required**). You'll also need to setup a [GOPATH](http://golang.org/doc/code.html#GOPATH), as well as adding `$GOPATH/bin` to your `$PATH`
 
-To compile the provider, run `go build -o terraform-provider-ultradns`. This will build the provider and put the provider binary in current directory.
+To compile the provider, run `go build -o terraform-provider-ultradns`. This will build the provider and put the provider binary in current directory
 
 
-In order to test the provider, you can simply run `make test`.
+In order to test the provider, you can simply run `make test`
 
 ```sh
 $ make test
 ```
 
-In order to run the full suite of Acceptance tests, run `make testacc`.
+In order to run the full suite of Acceptance tests, run `make testacc`
 
-- *Note:* Acceptance tests create real resources, and often cost money to run.
+- *Note:* Acceptance tests create real resources, and often cost money to run
 
 - *Note:* "{terraform_plugin_directory}" is the `terraform.d` directory where we will place the binaries
 
@@ -84,7 +85,7 @@ $ make testacc
 
 In order to add the compiled plugin to terraform, you can simply run the following:
 
-- *Note:* "{terraform_project_directory}" is the directory where actual project is written to be applied by terraform.
+- *Note:* "{terraform_project_directory}" is the directory where the actual project is written to be applied by terraform
 
 
 - *Note:* "{terraform_plugin_directory}" is the `terraform.d` directory where we will place the binaries
