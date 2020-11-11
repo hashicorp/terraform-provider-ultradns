@@ -2,11 +2,11 @@ package ultradns
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
-	"github.com/terra-farm/udnssdk"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	log "github.com/sirupsen/logrus"
+	"github.com/ultradns/ultradns-sdk-go"
 )
 
 func resourceUltradnsProbeHTTP() *schema.Resource {
@@ -15,7 +15,9 @@ func resourceUltradnsProbeHTTP() *schema.Resource {
 		Read:   resourceUltradnsProbeHTTPRead,
 		Update: resourceUltradnsProbeHTTPUpdate,
 		Delete: resourceUltradnsProbeHTTPDelete,
-
+		Importer: &schema.ResourceImporter{
+			State: resourceUltradnsProbeHTTPImport,
+		},
 		Schema: map[string]*schema.Schema{
 			// Key
 			"zone": {
@@ -138,9 +140,9 @@ func resourceUltradnsProbeHTTPCreate(d *schema.ResourceData, meta interface{}) e
 
 	uri := resp.Header.Get("Location")
 	d.Set("uri", uri)
-	id := strings.Split(uri,"/probes")[1]
+	id := fmt.Sprintf("%s:%s:%s", d.Get("name"), d.Get("zone"), strings.Split(uri, "probes/")[1])
 	d.SetId(id)
-	log.Printf("[INFO] ultradns_probe_http.http_id: %v", d.Id())
+	log.Infof("[INFO] ultradns_probe_http.http_id: %v", d.Id())
 
 	return resourceUltradnsProbeHTTPRead(d, meta)
 }
@@ -216,6 +218,10 @@ func makeHTTPProbeResource(d *schema.ResourceData) (probeResource, error) {
 	p.Zone = d.Get("zone").(string)
 	p.Name = d.Get("name").(string)
 	p.ID = d.Id()
+	if len((strings.Split(string(d.Id()), ":"))) > 2 {
+		p.ID = (strings.Split(string(d.Id()), ":"))[2]
+	}
+
 	p.Interval = d.Get("interval").(string)
 	p.PoolRecord = d.Get("pool_record").(string)
 	p.Threshold = d.Get("threshold").(int)
@@ -274,7 +280,7 @@ func makeHTTPProbeDetails(configured interface{}) *udnssdk.ProbeDetailsDTO {
 }
 
 func populateResourceDataFromHTTPProbe(p udnssdk.ProbeInfoDTO, d *schema.ResourceData) error {
-	d.SetId(p.ID)
+	d.SetId(d.Id())
 	d.Set("pool_record", p.PoolRecord)
 	d.Set("interval", p.Interval)
 	d.Set("agents", makeSetFromStrings(p.Agents))
@@ -315,4 +321,11 @@ func populateResourceDataFromHTTPProbe(p udnssdk.ProbeInfoDTO, d *schema.Resourc
 		return fmt.Errorf("http_probe set failed: %v, from %#v", err, hp)
 	}
 	return nil
+}
+
+//  State importer function resourceUltradnsProbeHTTPImport
+// State Function to seperate id into appropriate name and zone
+func resourceUltradnsProbeHTTPImport(
+	d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	return setProbeResourceAndParseId(d)
 }

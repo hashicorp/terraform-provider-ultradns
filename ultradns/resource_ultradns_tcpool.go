@@ -2,11 +2,11 @@ package ultradns
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
-	"github.com/terra-farm/udnssdk"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	log "github.com/sirupsen/logrus"
+	"github.com/ultradns/ultradns-sdk-go"
 )
 
 func resourceUltradnsTcpool() *schema.Resource {
@@ -15,6 +15,10 @@ func resourceUltradnsTcpool() *schema.Resource {
 		Read:   resourceUltradnsTcpoolRead,
 		Update: resourceUltradnsTcpoolUpdate,
 		Delete: resourceUltradnsTcpoolDelete,
+
+		Importer: &schema.ResourceImporter{
+			State: resourceUltradnsTcpoolImport,
+		},
 
 		Schema: map[string]*schema.Schema{
 			// Required
@@ -328,4 +332,11 @@ func makeSetFromRdata(rds []string, rdis []udnssdk.SBRDataInfo) *schema.Set {
 		s.Add(r)
 	}
 	return s
+}
+
+//State importer function resourceUltradnsTcpoolImport
+// State Function to seperate id into appropriate name and zone
+func resourceUltradnsTcpoolImport(
+	d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	return setResourceAndParseId(d)
 }

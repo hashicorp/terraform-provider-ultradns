@@ -2,12 +2,12 @@ package ultradns
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
-	"github.com/terra-farm/udnssdk"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	log "github.com/sirupsen/logrus"
+	udnssdk "github.com/ultradns/ultradns-sdk-go"
 )
 
 func resourceUltradnsRdpool() *schema.Resource {
@@ -16,6 +16,10 @@ func resourceUltradnsRdpool() *schema.Resource {
 		Read:   resourceUltradnsRdpoolRead,
 		Update: resourceUltradnsRdpoolUpdate,
 		Delete: resourceUltradnsRdpoolDelete,
+
+		Importer: &schema.ResourceImporter{
+			State: resourceUltradnsRdpoolImport,
+		},
 
 		Schema: map[string]*schema.Schema{
 			// Required
@@ -114,7 +118,11 @@ func resourceUltradnsRdpoolRead(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	r := rrsets[0]
+	return populateResourcesFromRDPool(r, d)
 
+}
+
+func populateResourcesFromRDPool(r udnssdk.RRSet, d *schema.ResourceData) error {
 	zone := d.Get("zone")
 
 	// hostname
@@ -132,6 +140,8 @@ func resourceUltradnsRdpoolRead(d *schema.ResourceData, meta interface{}) error 
 	if r.Profile == nil {
 		return fmt.Errorf("RRSet.profile missing: invalid RDPool schema in: %#v", r)
 	}
+
+	log.Infof("Profile = %+v", r.Profile)
 	p, err := r.Profile.RDPoolProfile()
 	if err != nil {
 		return fmt.Errorf("RRSet.profile could not be unmarshalled: %v\n", err)
@@ -146,6 +156,7 @@ func resourceUltradnsRdpoolRead(d *schema.ResourceData, meta interface{}) error 
 	if err != nil {
 		return fmt.Errorf("rdata set failed: %#v", err)
 	}
+
 	return nil
 }
 
@@ -199,6 +210,7 @@ func newRRSetResourceFromRdpool(d *schema.ResourceData) (rRSetResource, error) {
 	}
 	if attr, ok := d.GetOk("rdata"); ok {
 		rdata := attr.(*schema.Set).List()
+		log.Infof("%v", rdata)
 		r.RData = make([]string, len(rdata))
 		for i, j := range rdata {
 			r.RData[i] = j.(string)
@@ -215,4 +227,10 @@ func newRRSetResourceFromRdpool(d *schema.ResourceData) (rRSetResource, error) {
 	r.Profile = rp
 
 	return r, nil
+}
+
+// State Function to seperate id into appropriate name and zone
+func resourceUltradnsRdpoolImport(
+	d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	return setResourceAndParseId(d)
 }

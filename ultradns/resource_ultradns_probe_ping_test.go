@@ -1,16 +1,341 @@
 package ultradns
 
 import (
+	"encoding/json"
 	"fmt"
+	"net/http"
+	"os"
 	"testing"
 
-	"github.com/terra-farm/udnssdk"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	log "github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/assert"
+	udnssdk "github.com/ultradns/ultradns-sdk-go"
 )
+
+type mockUltraDNSRecordProbePing struct {
+	client *udnssdk.Client
+}
+
+func (m *mockUltraDNSRecordProbePing) Create(k udnssdk.RRSetKey, rrset udnssdk.RRSet) (*http.Response, error) {
+	return nil, nil
+}
+
+func (m *mockUltraDNSRecordProbePing) Select(k udnssdk.RRSetKey) ([]udnssdk.RRSet, error) {
+
+	jsonData := []byte(`
+        [{
+                "ownerName": "test.provider.ultradns.net",
+                "rrtype": "A (1)",
+                "ttl": 3600,
+                "rdata": [
+                        "10.0.0.1",
+                        "10.0.0.2",
+                        "10.0.0.3"
+                ],
+                "profile": {
+                        "@context": "http://schemas.ultradns.com/ProbePing.jsonschema",
+                        "order": "ROUND_ROBIN",
+                        "description": "testing"
+                }
+        }]
+        `)
+
+	rrsets := []udnssdk.RRSet{}
+	err := json.Unmarshal(jsonData, &rrsets)
+	if err != nil {
+		log.Println(err)
+	}
+
+	return rrsets, nil
+
+}
+
+func (m *mockUltraDNSRecordProbePing) SelectWithOffset(k udnssdk.RRSetKey, offset int) ([]udnssdk.RRSet, udnssdk.ResultInfo, *http.Response, error) {
+	return nil, udnssdk.ResultInfo{}, nil, nil
+}
+
+func (m *mockUltraDNSRecordProbePing) Update(udnssdk.RRSetKey, udnssdk.RRSet) (*http.Response, error) {
+	return nil, nil
+}
+
+func (m *mockUltraDNSRecordProbePing) Delete(k udnssdk.RRSetKey) (*http.Response, error) {
+	return nil, nil
+}
+
+func (m *mockUltraDNSRecordProbePing) SelectWithOffsetWithLimit(k udnssdk.RRSetKey, offset int, limit int) (rrsets []udnssdk.RRSet, ResultInfo udnssdk.ResultInfo, resp *http.Response, err error) {
+	return []udnssdk.RRSet{}, udnssdk.ResultInfo{}, nil, nil
+}
+
+func setResourceRecordPingProbe() (resourceRecord *schema.Resource) {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			// Key
+			"zone": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"pool_record": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			// Required
+			"agents": {
+				Type:     schema.TypeList,
+				Required: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"threshold": {
+				Type:     schema.TypeInt,
+				Required: true,
+			},
+			// Optional
+			"interval": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "FIVE_MINUTES",
+			},
+			"ping_probe": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     schemaPingProbe(),
+			},
+			// Computed
+			"ping_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+		},
+	}
+
+}
+
+func compareResourcesProbePing(t *testing.T, actual probeResource, expected probeResource, expectedDetails udnssdk.PingProbeDetailsDTO) {
+	assert.Equal(t, expected.Name, actual.Name, true)
+	assert.Equal(t, expected.Zone, actual.Zone, true)
+	assert.Equal(t, expected.ID, actual.ID, true)
+	assert.Equal(t, expectedDetails, actual.Details.Detail, true)
+
+}
+
+func compareResourcesDataProbePing(t *testing.T, actual *schema.ResourceData, expected *schema.ResourceData) {
+	assert.Equal(t, expected.Get("name"), actual.Get("name"), true)
+	assert.Equal(t, expected.Get("zone"), actual.Get("zone"), true)
+	assert.Equal(t, expected.Get("threshold"), actual.Get("threshold"), true)
+	assert.Equal(t, expected.Get("interval"), actual.Get("interval"), true)
+	assert.Equal(t, expected.Get("pool_record"), actual.Get("pool_record"), true)
+	assert.Equal(t, expected.Get("id"), actual.Get("id"), true)
+	assert.Equal(t, expected.Get("agents"), actual.Get("agents"), true)
+	assert.Equal(t, expected.Get("ping_probe.limit"), actual.Get("ping_probe.limit"), true)
+	assert.Equal(t, expected.Get("ping_probe.packets"), actual.Get("ping_probe.packets"), true)
+	assert.Equal(t, expected.Get("ping_probe.packet_size"), actual.Get("ping_probe.packet_size"), true)
+
+}
+
+func TestMakePingProbeResource(t *testing.T) {
+	resourceRecordObj := setResourceRecordPingProbe()
+	resourceData := resourceRecordObj.TestResourceData()
+	expectedData := []byte(`{"id":"0608485259D5AC79","type":"PING","interval":"ONE_MINUTE","agents":["DALLAS","AMSTERDAM"],"threshold":2,"details":{"packets":15,"packetSize":56,"limit":{"lossPercent":{"warning":1,"critical":2,"fail":3},"total":{"warning":2,"critical":3,"fail":4}}}}`)
+	expectedResource := probeResource{}
+	DetailsDTO := udnssdk.PingProbeDetailsDTO{
+		Packets:    15,
+		PacketSize: 56,
+		Limits: map[string]udnssdk.ProbeDetailsLimitDTO{
+			"lossPercent": udnssdk.ProbeDetailsLimitDTO{
+				Warning:  1,
+				Critical: 2,
+				Fail:     3,
+			},
+			"total": udnssdk.ProbeDetailsLimitDTO{
+				Warning:  2,
+				Critical: 3,
+				Fail:     4,
+			},
+		},
+	}
+
+	err := json.Unmarshal(expectedData, &expectedResource)
+
+	if err != nil {
+		log.Println(err)
+	}
+	expectedResource.Name = "test.provider.ultradns.net"
+	expectedResource.Zone = "test.provider.ultradns.net"
+	pingProbeDTO := make([]map[string]interface{}, 1)
+	pingProbe := []byte(`
+		{
+		"packets": 15,
+		"packet_size": 56,
+		"limit": [
+					{
+						"name": "lossPercent",
+						"warning": 1,
+						"critical": 2,
+						"fail": 3
+					},
+					{
+						"name": "total",
+						"warning": 2,
+						"critical": 3,
+						"fail": 4
+					}
+				]
+		}
+	`)
+
+	json.Unmarshal(pingProbe, &pingProbeDTO[0])
+	resourceData.Set("name", "test.provider.ultradns.net")
+	resourceData.Set("zone", "test.provider.ultradns.net")
+	resourceData.SetId("0608485259D5AC79")
+	resourceData.Set("agents", []string{"DALLAS", "AMSTERDAM"})
+	resourceData.Set("interval", "ONE_MINUTE")
+	resourceData.Set("threshold", 2)
+	resourceData.Set("ping_probe", pingProbeDTO)
+	res, _ := makePingProbeResource(resourceData)
+	compareResourcesProbePing(t, res, expectedResource, DetailsDTO)
+
+}
+
+func TestMakePingProbeDetails(t *testing.T) {
+	pingProbeDTO := make([]map[string]interface{}, 1)
+	pingProbe := []byte(`
+		{
+		"packets": 15,
+		"packet_size": 56,
+		"limit": [
+				{
+					"name": "lossPercent",
+					"warning": 1,
+					"critical": 2,
+					"fail": 3
+				},
+				{
+					"name": "total",
+					"warning": 2,
+					"critical": 3,
+					"fail": 4
+				}
+			]
+		}
+	`)
+
+	expectedData := &udnssdk.ProbeDetailsDTO{
+		Detail: udnssdk.PingProbeDetailsDTO{
+			Packets:    15,
+			PacketSize: 56,
+			Limits: map[string]udnssdk.ProbeDetailsLimitDTO{
+				"lossPercent": udnssdk.ProbeDetailsLimitDTO{
+					Warning: 1,
+
+					Critical: 2,
+					Fail:     3,
+				},
+				"total": udnssdk.ProbeDetailsLimitDTO{
+					Warning:  2,
+					Critical: 3,
+					Fail:     4,
+				},
+			},
+		},
+	}
+
+	json.Unmarshal(pingProbe, &pingProbeDTO[0])
+	resourceRecordObj := setResourceRecordPingProbe()
+	resourceData := resourceRecordObj.TestResourceData()
+	resourceData.Set("ping_probe", pingProbeDTO)
+	res := makePingProbeDetails(resourceData.Get("ping_probe").([]interface{})[0])
+	assert.Equal(t, expectedData, res, true)
+}
+
+func TestPopulateResourceDataFromPingProbe(t *testing.T) {
+
+	resourceRecordObj := setResourceRecordPingProbe()
+	resourceData := resourceRecordObj.TestResourceData()
+	expectedResourceRecordObj := setResourceRecordPingProbe()
+	expectedResourceData := expectedResourceRecordObj.TestResourceData()
+	expectedData := []byte(`{"id":"0608485259D5AC79","type":"PING","interval":"ONE_MINUTE","agents":["DALLAS","AMSTERDAM"],"threshold":2,"details":{"packets":15,"packetSize":56,"limit":{"lossPercent":{"warning":1,"critical":2,"fail":3},"total":{"warning":2,"critical":3,"fail":4}}}}`)
+	expectedResource := udnssdk.ProbeInfoDTO{}
+	err := json.Unmarshal(expectedData, &expectedResource)
+	pingProbeDTO := make([]map[string]interface{}, 1)
+	pingProbe := []byte(`
+		{
+		"packets": 15,
+		"packet_size": 56,
+		"limit": [
+					{
+						"name": "lossPercent",
+						"warning": 1,
+						"critical": 2,
+						"fail": 3
+					},
+					{
+						"name": "total",
+						"warning": 2,
+						"critical": 3,
+						"fail": 4
+					}
+				]
+		}
+	`)
+
+	json.Unmarshal(pingProbe, &pingProbeDTO[0])
+
+	expectedResourceData.Set("name", "test.provider.ultradns.net")
+	expectedResourceData.Set("zone", "test.provider.ultradns.net")
+	expectedResourceData.SetId("0608485259D5AC79")
+	expectedResourceData.Set("agents", []string{"DALLAS", "AMSTERDAM"})
+	expectedResourceData.Set("interval", "ONE_MINUTE")
+	expectedResourceData.Set("threshold", 2)
+	expectedResourceData.Set("pool_record", "")
+	expectedResourceData.Set("ping_probe", pingProbeDTO)
+
+	resourceData.Set("name", "test.provider.ultradns.net")
+	resourceData.Set("zone", "test.provider.ultradns.net")
+	resourceData.SetId("0608485259D5AC79")
+	resourceData.Set("ping_probe", pingProbeDTO)
+
+	populateResourceDataFromPingProbe(expectedResource, resourceData)
+	log.Infof("%+v", err)
+	compareResourcesDataProbePing(t, resourceData, expectedResourceData)
+}
+
+func TestResourceUltradnsProbePingImport(t *testing.T) {
+	resourceRecordObj := setResourceRecordPingProbe()
+	d := resourceRecordObj.TestResourceData()
+	d.SetId("test:test.provider.ultradns.net:0608485259D5AC79")
+	var interfaceEmpty *udnssdk.Client
+	newRecordData, _ := resourceUltradnsProbePingImport(d, interfaceEmpty)
+	assert.Equal(t, newRecordData[0].Get("name"), "test", true)
+	assert.Equal(t, newRecordData[0].Get("zone"), "test.provider.ultradns.net", true)
+}
+
+func TestResourceUltradnsProbePingImportFailCase(t *testing.T) {
+	resourceRecordObj := setResourceRecordPingProbe()
+	d := resourceRecordObj.TestResourceData()
+	d.SetId("test.test.provider.ultradns.net.0608485259D5AC79")
+	var interfaceEmpty *udnssdk.Client
+	_, err := resourceUltradnsProbePingImport(d, interfaceEmpty)
+	log.Errorf("ERROR: %+v", err)
+	assert.NotNil(t, err, true)
+
+	// Case1 when only one delimiter are there
+	d.SetId("test:test.provider.ultradns.net.0608485259D5AC79")
+	_, err = resourceUltradnsProbeHTTPImport(d, udnssdk.Client{})
+	log.Errorf("ERROR: %+v", err)
+	assert.NotNil(t, err, true)
+}
 
 func TestAccUltradnsProbePing(t *testing.T) {
 	var record udnssdk.RRSet
-	domain := "ultradns.phinze.com"
+	domain, _ := os.LookupEnv("ULTRADNS_DOMAIN")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -73,6 +398,12 @@ func TestAccUltradnsProbePing(t *testing.T) {
 					resource.TestCheckResourceAttr("ultradns_probe_ping.it", "ping_probe.0.limit.3257917790.critical", "3"),
 					resource.TestCheckResourceAttr("ultradns_probe_ping.it", "ping_probe.0.limit.3257917790.fail", "4"),
 				),
+			},
+
+			{
+				ResourceName:      "ultradns_probe_ping.it",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

@@ -4,18 +4,10 @@ terraform {
 
 
 provider "ultradns" {
+  version  = "~>0.2.0"
   username = "${var.ULTRADNS_USERNAME}"
   password = "${var.ULTRADNS_PASSWORD}"
   baseurl  = "${var.ULTRADNS_BASEURL}"
-}
-
-# Add a record to the domain
-resource "ultradns_record" "foobar" {
-  zone  = "${var.ULTRADNS_DOMAINNAME}."
-  name  = "terraform"
-  rdata = ["192.168.0.11"]
-  type  = "A"
-  ttl   = 3600
 }
 
 resource "ultradns_rdpool" "it" {
@@ -286,7 +278,6 @@ resource "ultradns_dirpool" "test-dirpool-minimal" {
   zone        = "${var.ULTRADNS_DOMAINNAME}"
   name        = "testdirpoolminimal.com"
   type        = "A"
-  ttl         = 300
   description = "Minimal directional pool"
 
   rdata {
@@ -299,7 +290,6 @@ resource "ultradns_dirpool" "test-dirpool-maximal" {
   zone        = "${var.ULTRADNS_DOMAINNAME}"
   name        = "testdirpoolmaximal.com"
   type        = "A"
-  ttl         = 300
   description = "Description of pool"
   conflict_resolve = "GEO"
 
@@ -376,3 +366,13 @@ resource "ultradns_dirpool" "test-dirpool-maximal" {
   }
 }
 
+# ultradns_record.foobar:
+resource "ultradns_record" "foobar" {
+    name     = "terraform"
+    rdata    = [
+        "192.168.0.12",
+    ]
+    ttl      = "3600"
+    type     = "A"
+    zone     = "${var.ULTRADNS_DOMAINNAME}"
+}

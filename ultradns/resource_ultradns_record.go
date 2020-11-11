@@ -3,15 +3,16 @@ package ultradns
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 
-	"github.com/terra-farm/udnssdk"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	log "github.com/sirupsen/logrus"
+	udnssdk "github.com/ultradns/ultradns-sdk-go"
 )
 
 func newRRSetResource(d *schema.ResourceData) (rRSetResource, error) {
+	log.Infof("Schema  = %+v", d)
 	r := rRSetResource{}
 
 	// TODO: return error if required attributes aren't ok
@@ -43,42 +44,54 @@ func newRRSetResource(d *schema.ResourceData) (rRSetResource, error) {
 	return r, nil
 }
 
-func populateResourceDataFromRRSet(r udnssdk.RRSet, d *schema.ResourceData) error {
-	zone := d.Get("zone")
-	typ := d.Get("type")
-	// ttl
-	d.Set("ttl", r.TTL)
-	// rdata
-	rdata := r.RData
+func populateResourceDataFromRRSet(r []udnssdk.RRSet, d *schema.ResourceData) error {
+	for _, rrset := range r {
+		zone := d.Get("zone")
+		typ := d.Get("type")
+		log.Infof("RRTYPE: %v", rrset.RRType)
+		if (typ != (strings.Split(rrset.RRType, " "))[0]) && (typ != "TXT") {
+			continue
+		}
 
-	// UltraDNS API returns answers double-encoded like JSON, so we must decode. This is their bug.
-	if typ == "TXT" {
-		rdata = make([]string, len(r.RData))
-		for i := range r.RData {
-			var s string
-			err := json.Unmarshal([]byte(r.RData[i]), &s)
-			if err != nil {
-				log.Printf("[INFO] TXT answer parse error: %+v", err)
-				s = r.RData[i]
+		//setting type
+		d.Set("type", typ)
+
+		log.Infof("typ = %s %s %s", typ, zone, strconv.Itoa(rrset.TTL))
+		// ttl
+		d.Set("ttl", strconv.Itoa(rrset.TTL))
+		// rdata
+		rdata := rrset.RData
+
+		// UltraDNS API returns answers double-encoded like JSON, so we must decode. This is their bug.
+		if typ == "TXT" {
+			rdata = make([]string, len(rrset.RData))
+			for i := range rrset.RData {
+				var s string
+				err := json.Unmarshal([]byte(rrset.RData[i]), &s)
+				if err != nil {
+					log.Printf("[INFO] TXT answer parse error: %+v", err)
+					s = rrset.RData[i]
+				}
+				rdata[i] = s
+
 			}
-			rdata[i] = s
-
 		}
-	}
 
-	err := d.Set("rdata", makeSetFromStrings(rdata))
-	if err != nil {
-		return fmt.Errorf("ultradns_record.rdata set failed: %#v", err)
-	}
-	// hostname
-	if r.OwnerName == "" {
-		d.Set("hostname", zone)
-	} else {
-		if strings.HasSuffix(r.OwnerName, ".") {
-			d.Set("hostname", r.OwnerName)
+		err := d.Set("rdata", makeSetFromStrings(rdata))
+		if err != nil {
+			return fmt.Errorf("ultradns_record.rdata set failed: %#v", err)
+		}
+		// hostname
+		if rrset.OwnerName == "" {
+			d.Set("hostname", zone)
 		} else {
-			d.Set("hostname", fmt.Sprintf("%s.%s", r.OwnerName, zone))
+			if strings.HasSuffix(rrset.OwnerName, ".") {
+				d.Set("hostname", rrset.OwnerName)
+			} else {
+				d.Set("hostname", fmt.Sprintf("%s.%s", rrset.OwnerName, zone))
+			}
 		}
+		break
 	}
 	return nil
 }
@@ -105,7 +118,6 @@ func resourceUltradnsRecord() *schema.Resource {
 			"type": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"rdata": {
 				Type:     schema.TypeSet,
@@ -125,6 +137,10 @@ func resourceUltradnsRecord() *schema.Resource {
 				Computed: true,
 			},
 		},
+
+		Importer: &schema.ResourceImporter{
+			State: resourceUltradnsRecordImport,
+		},
 	}
 }
 
@@ -143,7 +159,6 @@ func resourceUltraDNSRecordCreate(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return fmt.Errorf("create failed: %v", err)
 	}
-
 	d.SetId(r.ID())
 	log.Printf("[INFO] ultradns_record.id: %v", d.Id())
 
@@ -159,6 +174,7 @@ func resourceUltraDNSRecordRead(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	rrsets, err := client.RRSets.Select(r.RRSetKey())
+	log.Infof("RRSET INFO: %v", rrsets)
 	if err != nil {
 		uderr, ok := err.(*udnssdk.ErrorResponseList)
 		if ok {
@@ -173,7 +189,7 @@ func resourceUltraDNSRecordRead(d *schema.ResourceData, meta interface{}) error 
 		}
 		return fmt.Errorf("not found: %v", err)
 	}
-	rec := rrsets[0]
+	rec := rrsets
 	return populateResourceDataFromRRSet(rec, d)
 }
 
@@ -211,4 +227,8 @@ func resourceUltraDNSRecordDelete(d *schema.ResourceData, meta interface{}) erro
 	return nil
 }
 
-// Conversion helper functions
+// State Function to seperate id into appropriate name and zone
+func resourceUltradnsRecordImport(
+	d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	return setResourceAndParseId(d)
+}

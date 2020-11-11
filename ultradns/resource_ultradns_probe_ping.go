@@ -2,11 +2,11 @@ package ultradns
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
-	"github.com/terra-farm/udnssdk"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	log "github.com/sirupsen/logrus"
+	"github.com/ultradns/ultradns-sdk-go"
 )
 
 func resourceUltradnsProbePing() *schema.Resource {
@@ -15,6 +15,10 @@ func resourceUltradnsProbePing() *schema.Resource {
 		Read:   resourceUltradnsProbePingRead,
 		Update: resourceUltradnsProbePingUpdate,
 		Delete: resourceUltradnsProbePingDelete,
+
+		Importer: &schema.ResourceImporter{
+			State: resourceUltradnsProbePingImport,
+		},
 
 		Schema: map[string]*schema.Schema{
 			// Key
@@ -79,7 +83,7 @@ func resourceUltradnsProbePingCreate(d *schema.ResourceData, meta interface{}) e
 
 	uri := resp.Header.Get("Location")
 	d.Set("uri", uri)
-	id := strings.Split(uri,"/probes")[1]
+	id := fmt.Sprintf("%s:%s:%s", d.Get("name"), d.Get("zone"), strings.Split(uri, "probes/")[1])
 	d.SetId(id)
 	log.Printf("[INFO] ultradns_probe_ping.ping_id: %v", d.Id())
 
@@ -157,6 +161,10 @@ func makePingProbeResource(d *schema.ResourceData) (probeResource, error) {
 	p.Zone = d.Get("zone").(string)
 	p.Name = d.Get("name").(string)
 	p.ID = d.Id()
+	if len((strings.Split(string(d.Id()), ":"))) > 2 {
+		p.ID = (strings.Split(string(d.Id()), ":"))[2]
+	}
+
 	p.Interval = d.Get("interval").(string)
 	p.PoolRecord = d.Get("pool_record").(string)
 	p.Threshold = d.Get("threshold").(int)
@@ -171,6 +179,7 @@ func makePingProbeResource(d *schema.ResourceData) (probeResource, error) {
 			return p, fmt.Errorf("ping_probe: only 0 or 1 blocks alowed, got: %#v", len(pps))
 		}
 		p.Details = makePingProbeDetails(pps[0])
+		log.Infof("%+v p.Details", p.Details.Detail)
 	}
 
 	return p, nil
@@ -179,11 +188,14 @@ func makePingProbeResource(d *schema.ResourceData) (probeResource, error) {
 func makePingProbeDetails(configured interface{}) *udnssdk.ProbeDetailsDTO {
 	data := configured.(map[string]interface{})
 	// Convert limits from flattened set format to mapping.
+	log.Infof("%+v limit", data["limit"].(*schema.Set).List())
 	ls := make(map[string]udnssdk.ProbeDetailsLimitDTO)
 	for _, limit := range data["limit"].(*schema.Set).List() {
 		l := limit.(map[string]interface{})
+		log.Infof("%+v limit1", l)
 		name := l["name"].(string)
 		ls[name] = *makeProbeDetailsLimit(l)
+		log.Infof("%+v ls:", ls)
 	}
 	res := udnssdk.ProbeDetailsDTO{
 		Detail: udnssdk.PingProbeDetailsDTO{
@@ -192,17 +204,20 @@ func makePingProbeDetails(configured interface{}) *udnssdk.ProbeDetailsDTO {
 			Packets:    data["packets"].(int),
 		},
 	}
+	log.Infof("%+v res:", res)
 	return &res
 }
 
 func populateResourceDataFromPingProbe(p udnssdk.ProbeInfoDTO, d *schema.ResourceData) error {
-	d.SetId(p.ID)
+	d.SetId(d.Id())
 	d.Set("pool_record", p.PoolRecord)
 	d.Set("interval", p.Interval)
 	d.Set("agents", p.Agents)
 	d.Set("threshold", p.Threshold)
 
 	pd, err := p.Details.PingProbeDetails()
+	log.Infof("%#v Details", p)
+	log.Infof("%+v limits", pd.Limits)
 	if err != nil {
 		return fmt.Errorf("ProbeInfo.details could not be unmarshalled: %v, Details: %#v", err, p.Details)
 	}
@@ -211,10 +226,17 @@ func populateResourceDataFromPingProbe(p udnssdk.ProbeInfoDTO, d *schema.Resourc
 		"packet_size": pd.PacketSize,
 		"limit":       makeSetFromLimits(pd.Limits),
 	}
+	log.Infof("pp: %+v", pp)
 
 	err = d.Set("ping_probe", []map[string]interface{}{pp})
 	if err != nil {
 		return fmt.Errorf("ping_probe set failed: %v, from %#v", err, pp)
 	}
 	return nil
+}
+
+// State function to seperate id into appropriate name and zone
+func resourceUltradnsProbePingImport(
+	d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	return setProbeResourceAndParseId(d)
 }

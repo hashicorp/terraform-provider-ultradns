@@ -1,12 +1,14 @@
 package ultradns
 
 import (
+	"errors"
 	"fmt"
 	"log"
+	"strings"
 
-	"github.com/terra-farm/udnssdk"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/ultradns/ultradns-sdk-go"
 )
 
 // Conversion helper functions
@@ -46,7 +48,7 @@ func (r rRSetResource) RRSet() udnssdk.RRSet {
 }
 
 func (r rRSetResource) ID() string {
-	return fmt.Sprintf("%s.%s", r.OwnerName, r.Zone)
+	return fmt.Sprintf("%s:%s:%s", r.OwnerName, r.Zone, r.RRType)
 }
 
 func unzipRdataHosts(configured []interface{}) []string {
@@ -195,4 +197,28 @@ func hashRdatas(v interface{}) int {
 	h := hashcode.String(m["host"].(string))
 	log.Printf("[DEBUG] hashRdatas(): %v -> %v", m["host"].(string), h)
 	return h
+}
+
+func setProbeResourceAndParseId(d *schema.ResourceData) (resourceData []*schema.ResourceData, err error) {
+	newID := strings.TrimSuffix(d.Id(), ".")
+	attributes := strings.Split(newID, ":")
+	if len(attributes) != 3 {
+		return nil, errors.New("Wrong ID please provide proper ID in format name:zone:id")
+	}
+	d.Set("zone", attributes[1])
+	d.Set("name", attributes[0])
+	d.SetId(strings.TrimSuffix(d.Id(), "."))
+	return []*schema.ResourceData{d}, nil
+}
+
+func setResourceAndParseId(d *schema.ResourceData) (resourceData []*schema.ResourceData, err error) {
+	newID := strings.TrimSuffix(d.Id(), ".")
+	attributes := strings.Split(newID, ":")
+	if len(attributes) != 3 {
+		return nil, errors.New("Wrong ID please provide proper ID in format name:zone:type")
+	}
+	d.Set("type", attributes[2])
+	d.Set("zone", attributes[1])
+	d.Set("name", attributes[0])
+	return []*schema.ResourceData{d}, nil
 }
